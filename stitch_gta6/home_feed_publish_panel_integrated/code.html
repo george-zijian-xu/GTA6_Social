@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Leonida Social - Publish</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Keep legacy material icons for consistency with the original code snippets -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#ff2442",
+                        "background-light": "#fdfdfd",
+                        "background-dark": "#121212",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e1e1e",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        .publish-panel-shadow {
+            box-shadow: 20px 0 50px -10px rgba(0, 0, 0, 0.05);
+        }
+        .dark .publish-panel-shadow {
+            box-shadow: 20px 0 50px -10px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-display flex h-screen overflow-hidden antialiased">
+<!-- Sidebar -->
+<aside class="w-64 flex-shrink-0 flex flex-col relative z-30 bg-background-light dark:bg-background-dark">
+<div class="h-28 flex items-center px-8">
+<div class="flex flex-col justify-center">
+<span class="text-primary font-extrabold text-lg leading-tight tracking-tight">Leonida Social</span>
+<span class="text-[0.65rem] text-gray-500 dark:text-gray-400 font-semibold tracking-wider uppercase mt-0.5">The Digital Curator</span>
+</div>
+</div>
+<div class="px-4 flex-1 flex flex-col">
+<nav>
+<ul class="space-y-1">
+<li>
+<a class="flex items-center px-4 py-2.5 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors" href="#">
+<span class="material-icons text-[18px] mr-4 text-gray-400 dark:text-gray-500">explore</span>
+<span class="text-sm">Discover</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-2.5 text-primary font-semibold bg-red-50 dark:bg-primary/10 rounded-xl transition-colors" href="#">
+<span class="material-icons text-[18px] mr-4">add_box</span>
+<span class="text-sm">Publish</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-2.5 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors" href="#">
+<span class="material-icons text-[18px] mr-4 text-gray-400 dark:text-gray-500">person_outline</span>
+<span class="text-sm">Profile</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-2.5 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors" href="#">
+<span class="material-icons text-[18px] mr-4 text-gray-400 dark:text-gray-500">notifications_none</span>
+<span class="text-sm">Notifications</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class="mt-8 px-2">
+<button class="w-full bg-primary text-white rounded-full py-3 text-sm font-bold tracking-wide shadow-lg shadow-primary/30 hover:bg-red-600 transition-colors">
+                    POST
+                </button>
+</div>
+<div class="mt-auto px-6 pb-8 space-y-5">
+<a class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" href="#">
+<span class="material-icons text-[16px] mr-3">info_outline</span> About
+                </a>
+<a class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" href="#">
+<span class="material-icons text-[16px] mr-3">shield</span> Privacy
+                </a>
+<button class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors w-full text-left" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-icons text-[16px] mr-3">tonality</span> Dark/Light Mode
+                </button>
+<a class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" href="#">
+<span class="material-icons text-[16px] mr-3">logout</span> Logout
+                </a>
+</div>
+</div>
+</aside>
+<!-- Publish Panel -->
+<section class="w-[420px] flex-shrink-0 flex flex-col z-20 bg-background-light dark:bg-background-dark border-x border-gray-100 dark:border-gray-800/50 publish-panel-shadow">
+<div class="h-28 flex items-center justify-between px-8">
+<h2 class="text-lg font-bold text-gray-900 dark:text-white">Publish Content</h2>
+<button class="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
+<span class="material-symbols-outlined text-gray-500 text-xl">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto px-8 pb-10 space-y-8">
+<!-- Media Upload Area -->
+<div class="space-y-4">
+<label class="block text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest">Media</label>
+<div class="relative aspect-video w-full rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center hover:border-primary/50 transition-colors cursor-pointer group bg-gray-50/50 dark:bg-white/[0.02]">
+<img alt="Preview" class="absolute inset-0 w-full h-full object-cover rounded-2xl opacity-40 group-hover:opacity-30 transition-opacity" src="https://lh3.googleusercontent.com/aida/ADBb0ugA7OiwvwZjo72nRyACPp_r8EYYBJpLSwmJoT91JjXFrjiQPpSmxwjwcqSQxKfHeiUtcDTtVk4TbiUZKrlJfjfC7alE4ipae2dK1SavGsH1igl13Gcanl-RRK9QuyiiInoJlWqXKvG9mha6sfrwrbqB0YdQT4o7je1fdXZiReyCleJwtj1NHhJxhF0SyxTz37J9cH1BeD6Zy3KSOFu_4MFPJYn4a2ZHwR6H2i0oIbSh27u8KlxFHY9o1tBZK5f0_g21NkuBB0Qj9Q"/>
+<div class="relative z-10 flex flex-col items-center">
+<span class="material-symbols-outlined text-3xl text-gray-400 group-hover:text-primary transition-colors">add_photo_alternate</span>
+<span class="mt-2 text-xs font-semibold text-gray-500 dark:text-gray-400">Change Cover Image</span>
+</div>
+</div>
+</div>
+<!-- Title Input -->
+<div class="space-y-3">
+<label class="block text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest">Exhibition Title</label>
+<input class="w-full bg-transparent border-none p-0 text-xl font-bold placeholder-gray-300 dark:placeholder-gray-700 focus:ring-0 text-gray-900 dark:text-white" placeholder="Add a Title" type="text"/>
+<div class="h-px w-full bg-gray-100 dark:bg-gray-800"></div>
+</div>
+<!-- Content Area -->
+<div class="space-y-3">
+<label class="block text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest">The Story</label>
+<textarea class="w-full bg-transparent border-none p-0 text-sm leading-relaxed placeholder-gray-300 dark:placeholder-gray-700 focus:ring-0 text-gray-700 dark:text-gray-300 resize-none" placeholder="Add Some Text..." rows="6"></textarea>
+</div>
+<!-- Location -->
+<div class="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex items-center text-gray-500 dark:text-gray-400">
+<span class="material-symbols-outlined text-xl mr-3">location_on</span>
+<span class="text-sm font-medium">Location</span>
+</div>
+<span class="material-symbols-outlined text-gray-400 text-lg group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+</div>
+<div class="p-8 bg-background-light dark:bg-background-dark">
+<button class="w-full bg-primary text-white rounded-2xl py-4 text-sm font-bold tracking-wide shadow-lg shadow-primary/30 hover:bg-red-600 transition-all hover:-translate-y-0.5 active:translate-y-0">
+                Publish Now
+            </button>
+</div>
+</section>
+<!-- Main Content (Feed) -->
+<main class="flex-1 flex flex-col relative bg-background-light dark:bg-background-dark">
+<header class="h-28 flex items-center px-10">
+<div class="w-full max-w-2xl relative flex items-center bg-gray-100/80 dark:bg-surface-dark rounded-full px-4 py-2.5 border border-transparent dark:border-gray-800 focus-within:border-gray-300 dark:focus-within:border-gray-700 transition-colors">
+<span class="material-icons text-gray-400 text-[20px] mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 p-0 w-full text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 outline-none" placeholder="Search Leonida..." type="text"/>
+</div>
+</header>
+<div class="px-10 flex-1 overflow-y-auto pb-12">
+<div class="flex border-b border-gray-200 dark:border-gray-800/50 mb-8 mt-1.5">
+<button class="pb-3 border-b-2 border-primary text-primary font-bold text-sm tracking-wide">
+                    Recommendations
+                </button>
+</div>
+<!-- Masonry-like Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 opacity-40">
+<article class="bg-surface-light dark:bg-surface-dark rounded-2xl overflow-hidden flex flex-col shadow-sm border border-gray-100 dark:border-gray-800/60 hover:shadow-md transition-shadow duration-300">
+<img alt="Cyberpunk street scene at night" class="w-full aspect-[4/3] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAknQRlYJONLNSz3BNmqIa4vxUmbQhM97C9ybV70NSo-Vrg4DmnGz60Emcnvw7XwQPndcqQ40HpHUNcG5_-eL1rxonl_qZOoCbqmYsJQZV1cUIcS5R0hpLUgBgvaXwCXVHUhMAklBw_r_Gxzswr6VUv8s2nybDOkYLDfHLkZcvN_F2dJjdmexT8jxRD4fBm1ISZstXYYY2Ek6Fb3_HUt2empQg-T1aucaYZB00IEZp4cbsm81inZ6Qhn7t9IWH9IW00n2i8xR5YehY"/>
+<div class="p-4 flex-1 flex flex-col">
+<h3 class="font-bold text-sm mb-4 text-gray-900 dark:text-white leading-snug">Midnight in Sector 7. The rain never stops.</h3>
+<div class="mt-auto flex items-center justify-between text-[0.7rem] text-gray-500 dark:text-gray-400 font-medium">
+<div class="flex items-center">
+<img alt="Avatar" class="w-5 h-5 rounded-full mr-2 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRhi8VSgQNrAtjM1YEF93Wjn5ccgREGLqUzJL2xXR6bf99sYv5m5GTPAUoTdaTNAdzdh3BBOGZBDlpUK4WHX-rSGia2omhhAXnB-a2W17vmOOCIVe4siRv74bZCHFHdjF49jEqYj_30pbQqBZEmXogjs7c6h0TbsavEkE4u_JdmRLToS6bpzzbxSrptTu_OzU3OATXtJlzKlQ0lexlt6ixKZ8Sv4KlA3ZX4CNWxQ96OYmPUSkelJ6upsLwulBhiclJ4pzFU0gGPPA"/> 
+                                CyberRunn...
+                            </div>
+<div class="flex items-center">
+<span class="material-icons text-[14px] mr-1 text-gray-400">favorite_border</span> 12.4k
+                            </div>
+</div>
+</div>
+</article>
+<article class="bg-surface-light dark:bg-surface-dark rounded-2xl overflow-hidden flex flex-col shadow-sm border border-gray-100 dark:border-gray-800/60 hover:shadow-md transition-shadow duration-300">
+<img alt="Abstract swirling light trails" class="w-full aspect-[4/3] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgxo0e_o1uEZVbzBrzSOOezkdIq3bybBkzp0T46YNNXF_zC7eMLPrWNi1oDbUwxloC-sYOpBJv3x97I7enmSd08tzC0WaPUpaxcADCOOBrFBvp16kEX3vr7o-MRy_omzrtDmxD4BXB_3csXvtoM_oyJShlngmDZabFQZUSplqI90t-IrP_iOycs2qZ0wNbRnfUNE9J5rBi45Nk6fG_Z4HP5CkNDjjPz8vLFenyfN06g_8iIs8i80-K_V9KngAz0gqKG6sIB7tvYd0"/>
+<div class="p-4 flex-1 flex flex-col">
+<h3 class="font-bold text-sm mb-4 text-gray-900 dark:text-white leading-snug">Visualizing the flow of the network. Pure data...</h3>
+<div class="mt-auto flex items-center justify-between text-[0.7rem] text-gray-500 dark:text-gray-400 font-medium">
+<div class="flex items-center">
+<img alt="Avatar" class="w-5 h-5 rounded-full mr-2 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9b8aG4ILl5CDiO3lvZuRhxCuIv7UquU4VbPo5UenO3l9xgPflPxCm7Gby-LsrcGm1NYUbyouYMs4jyvv-lZKn_BVe5bh6LK3ubpgbWlKMJjU0_6Z_vjFO1tZpJyUI7cN8as6R2i3iUGSqOMqKWQNQednnQleflTwpCNs5k41DeUMWHZYE3_Med8NjFzRGkmBOW6ztm0c6sMEUIR9BIlGd6i3O1bG1sAnRFKsF_xAW6xVVxnv_1KyKyvuWmFM22TInE0ms8piERJ0"/> 
+                                NetCurator...
+                            </div>
+<div class="flex items-center">
+<span class="material-icons text-[14px] mr-1 text-gray-400">favorite_border</span> 8.1k
+                            </div>
+</div>
+</div>
+</article>
+<article class="bg-surface-light dark:bg-surface-dark rounded-2xl overflow-hidden flex flex-col shadow-sm border border-gray-100 dark:border-gray-800/60 hover:shadow-md transition-shadow duration-300">
+<img alt="Brutalist concrete architecture" class="w-full aspect-[4/3] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWn6u3z0WdMV275NshpTCkJKv0GN0xo0EPC2BxLm-QVULtEFmestrpvIcO3P4knd5gphWg8-2nI4aIcmqk6tt0yHGdeFHfUeBnWUPJBb6Nk4zHzNwZQQyX9PkDuuCr5FjbNfjrnqiUJuko8NaLaYCLgoEtPk6mT8JCVS9OVqJcJiwpgO-niGoQRneQOl24hu7r2KKBLMlHDAmPsLMAUs7xDPuf31T3iv15Hb2UFLsNojig1C7Woi6M-t2-LW77cDIQ-PR7HLvHxJo"/>
+<div class="p-4 flex-1 flex flex-col">
+<h3 class="font-bold text-sm mb-4 text-gray-900 dark:text-white leading-snug">Silence in concrete. The Arch-Net is watching.</h3>
+<div class="mt-auto flex items-center justify-between text-[0.7rem] text-gray-500 dark:text-gray-400 font-medium">
+<div class="flex items-center">
+<img alt="Avatar" class="w-5 h-5 rounded-full mr-2 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiJ9UnglKuspNk0Tp2Z0_gUCLmNppaBHso2ZlDgOMZ1QhfWzA-RiY04D7rDdpiWVO7luGa-legUOb7nLG4pFjZbHAXheddfiBZApKv305aY6bUN_AViswxDE1ujr1i9BCODEQHpFtkdSOF6so-Qke15H8i7sBZDAzEyd_I-0_kxIEjFhXMHcOzNsg5s64MEGeySOiGfLv_sC7wASrvf1SLXF9YzmIqB5aDCLxYL_u9J8yGncG1l39DDdEAX8Qi3DfOaRChgv4Ae5U"/> 
+                                Brutal_Mind
+                            </div>
+<div class="flex items-center">
+<span class="material-icons text-[14px] mr-1 text-gray-400">favorite_border</span> 15.9k
+                            </div>
+</div>
+</div>
+</article>
+</div>
+<div class="mt-20 mb-10 flex flex-col items-center justify-center opacity-30">
+<div class="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-primary rounded-full animate-spin mb-4"></div>
+<span class="text-[0.65rem] text-gray-500 dark:text-gray-400 uppercase tracking-widest font-bold">Fetching more curators...</span>
+</div>
+</div>
+</main>
+</body></html>

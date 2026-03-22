@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-primary: #ff2442;
+  --color-primary-hover: #e61e3a;
+
+  --color-surface-base: #fdfdfd;
+  --color-surface-secondary: #f3f3f3;
+  --color-surface-card: #ffffff;
+
+  --color-foreground: #171717;
+  --color-foreground-muted: #6b7280;
+
+  --color-background: var(--color-surface-base);
+
+  --font-sans: "Inter", sans-serif;
+
+  --radius-default: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+}
+
+body {
+  background: var(--color-surface-base);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+.dark body {
+  background: #0a0a0a;
+  color: #ededed;
+}
