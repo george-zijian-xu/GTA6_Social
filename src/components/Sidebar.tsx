@@ -1,8 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "./ThemeProvider";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 const navItems = [
   { href: "/", label: "Discover", icon: "explore" },
@@ -13,7 +16,21 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, toggle } = useTheme();
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/");
+    router.refresh();
+  }
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -87,10 +104,23 @@ export function Sidebar() {
           </span>
           {theme === "dark" ? "Light Mode" : "Dark Mode"}
         </button>
-        <button className="flex items-center gap-3 text-xs font-medium text-foreground-muted hover:text-foreground transition-colors w-full text-left">
-          <span className="material-symbols-outlined text-[16px]">logout</span>
-          Logout
-        </button>
+        {user ? (
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 text-xs font-medium text-foreground-muted hover:text-foreground transition-colors w-full text-left"
+          >
+            <span className="material-symbols-outlined text-[16px]">logout</span>
+            Logout
+          </button>
+        ) : (
+          <Link
+            href="/auth/login"
+            className="flex items-center gap-3 text-xs font-medium text-foreground-muted hover:text-foreground transition-colors"
+          >
+            <span className="material-symbols-outlined text-[16px]">login</span>
+            Login
+          </Link>
+        )}
       </div>
     </aside>
   );

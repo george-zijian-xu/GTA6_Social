@@ -26,7 +26,26 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Refresh the session — important for Server Components
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Protect routes that require authentication
+  const protectedPaths = ["/publish", "/notifications", "/profile"];
+  const isProtected = protectedPaths.some((p) =>
+    request.nextUrl.pathname.startsWith(p)
+  );
+
+  if (isProtected && !user) {
+    const loginUrl = new URL("/auth/login", request.nextUrl.origin);
+    loginUrl.searchParams.set("next", request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Redirect authenticated users away from login page
+  if (user && request.nextUrl.pathname.startsWith("/auth/login")) {
+    return NextResponse.redirect(new URL("/", request.nextUrl.origin));
+  }
 
   return supabaseResponse;
 }
