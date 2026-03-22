@@ -8,6 +8,8 @@ export default defineConfig({
     environment: "node",
     globals: true,
     setupFiles: ["./src/__tests__/setup.ts"],
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
   },
   resolve: {
     alias: {

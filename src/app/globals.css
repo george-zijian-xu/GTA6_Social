@@ -37,3 +37,17 @@ body {
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
 }
+
+/* Masonry layout */
+.masonry-grid {
+  display: flex;
+  margin-left: -1.5rem;
+  width: auto;
+}
+.masonry-grid_column {
+  padding-left: 1.5rem;
+  background-clip: padding-box;
+}
+.masonry-grid_column > * {
+  margin-bottom: 1.5rem;
+}
