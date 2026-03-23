@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -20,6 +20,7 @@ interface PostFormProps {
 }
 
 export function PostForm({ onClose, compact = false }: PostFormProps) {
+  const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
   const [images, setImages] = useState<ImagePreview[]>([]);
   const [locationId, setLocationId] = useState<string | null>(null);
@@ -33,6 +34,20 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
 
   const MAX_IMAGES = 10;
   const MAX_CAPTION = 2000;
+  const DRAFT_KEY = "leonida_post_draft";
+
+  // Restore draft from sessionStorage on mount
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft = JSON.parse(saved);
+        if (draft.title) setTitle(draft.title);
+        if (draft.caption) setCaption(draft.caption);
+        sessionStorage.removeItem(DRAFT_KEY);
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   // Load image dimensions
   function loadImageDimensions(file: File): Promise<{ width: number; height: number }> {
@@ -90,13 +105,18 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
   }
 
   async function handleSubmit() {
-    const trimmed = caption.trim();
-    if (!trimmed) {
-      setError("Caption is required.");
+    const trimmedTitle = title.trim();
+    const trimmedCaption = caption.trim();
+    const fullCaption = trimmedTitle
+      ? `${trimmedTitle}\n\n${trimmedCaption}`.trim()
+      : trimmedCaption;
+
+    if (!fullCaption) {
+      setError("Add a title or caption.");
       return;
     }
-    if (containsProfanity(trimmed)) {
-      setError("Your caption contains inappropriate language. Please revise.");
+    if (containsProfanity(fullCaption)) {
+      setError("Your post contains inappropriate language. Please revise.");
       return;
     }
 
@@ -121,9 +141,12 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
         }
       }
 
-      // Auth check — only redirect AFTER user has committed to publishing
+      // Auth check — save draft and redirect to login
       if (!user) {
-        setError("Please log in to publish.");
+        try {
+          sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ title, caption }));
+        } catch { /* ignore */ }
+        setError("Please log in to publish. Your draft has been saved.");
         setSubmitting(false);
         setTimeout(() => router.push("/auth/login"), 1500);
         return;
@@ -131,7 +154,7 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
 
       const result = await createPost({
         authorId: user.id,
-        caption: trimmed,
+        caption: fullCaption,
         locationId: locationId ?? undefined,
         images: uploadedImages,
         client: supabase,
@@ -211,10 +234,25 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
           />
         </div>
 
+        {/* Title */}
+        <div className="space-y-3">
+          <label className="block text-[0.65rem] font-bold text-foreground-muted uppercase tracking-widest">
+            Title
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value.slice(0, 120))}
+            placeholder="Add a title..."
+            className="w-full bg-transparent border-none p-0 text-xl font-bold placeholder:text-foreground-muted focus:ring-0 focus:outline-none text-foreground"
+          />
+          <div className="h-px w-full bg-foreground/5" />
+        </div>
+
         {/* Caption */}
         <div className="space-y-3">
           <label className="block text-[0.65rem] font-bold text-foreground-muted uppercase tracking-widest">
-            Caption
+            The Story
           </label>
           <textarea
             value={caption}

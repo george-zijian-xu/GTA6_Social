@@ -23,8 +23,8 @@ export default async function Home() {
 
       {/* Content */}
       <div className="px-4 md:px-10 pb-20 md:pb-12">
-        {/* Tab header */}
-        <div className="flex border-b border-foreground/5 mb-8">
+        {/* Tab header — flush to top of content, border aligns with sidebar nav items */}
+        <div className="flex border-b border-foreground/5 mb-8 -mt-px">
           <button className="pb-3 border-b-2 border-primary text-primary font-bold text-sm tracking-wide">
             Recommendations
           </button>

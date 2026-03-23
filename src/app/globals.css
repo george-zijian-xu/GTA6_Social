@@ -33,8 +33,8 @@ body {
   color: #ededed;
 }
 
-/* Dark mode: override theme CSS custom properties */
-.dark {
+/* Dark mode: override theme CSS custom properties using :root.dark for higher specificity */
+:root.dark {
   --color-surface-base: #0a0a0a;
   --color-surface-secondary: #1a1a1a;
   --color-surface-card: #141414;

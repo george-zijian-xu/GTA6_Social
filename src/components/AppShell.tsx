@@ -1,13 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { MobileNav } from "./MobileNav";
 import { ThemeProvider } from "./ThemeProvider";
 import { FastPostPanel } from "./FastPostPanel";
+import { createClient } from "@/lib/supabase/client";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [panelOpen, setPanelOpen] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+    // Sync server session with browser client on auth state change
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      router.refresh();
+    });
+    return () => subscription.unsubscribe();
+  }, [router]);
 
   return (
     <ThemeProvider>
