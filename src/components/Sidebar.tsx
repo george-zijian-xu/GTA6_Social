@@ -14,7 +14,11 @@ const navItems = [
   { href: "/notifications", label: "Notifications", icon: "notifications_none" },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onPostClick?: () => void;
+}
+
+export function Sidebar({ onPostClick }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, toggle } = useTheme();
@@ -70,12 +74,12 @@ export function Sidebar() {
 
         {/* POST button */}
         <div className="pt-4 px-1">
-          <Link
-            href="/publish"
+          <button
+            onClick={onPostClick}
             className="flex items-center justify-center w-full py-3 rounded-full bg-primary text-white text-sm font-bold tracking-wide shadow-lg shadow-primary/30 hover:bg-primary-hover transition-colors"
           >
             POST
-          </Link>
+          </button>
         </div>
       </nav>
 
