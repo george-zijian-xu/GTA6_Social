@@ -8,10 +8,32 @@ const inter = Inter({
   display: "swap",
 });
 
+const BASE_URL = "https://grandtheftauto6.com";
+
 export const metadata: Metadata = {
-  title: "Leonida Social — Unofficial GTA6 Fan Page",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "Leonida Social — Unofficial GTA6 Fan Page",
+    template: "%s | Leonida Social",
+  },
   description:
     "A parody social network inspired by GTA 6. Roleplay as NPCs, share posts, and explore Leonida.",
+  openGraph: {
+    type: "website",
+    siteName: "Leonida Social",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@LeonidaSocial",
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

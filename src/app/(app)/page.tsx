@@ -1,6 +1,13 @@
 import { fetchFeedPage } from "@/lib/feed-server";
 import { MasonryFeed } from "@/components/MasonryFeed";
 import { SearchBar } from "@/components/SearchBar";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Discover",
+  description: "Discover posts from citizens of Leonida. The unofficial GTA 6 fan social network.",
+  alternates: { canonical: "https://grandtheftauto6.com" },
+};
 
 export default async function Home() {
   const { posts, nextCursor } = await fetchFeedPage();

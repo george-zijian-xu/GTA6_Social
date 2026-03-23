@@ -27,12 +27,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${post.images[0].storagePath}`
     : undefined;
 
+  const canonicalUrl = `https://grandtheftauto6.com/posts/${slug}`;
+
   return {
-    title: `${post.caption.slice(0, 60) || "Post"} — Leonida Social`,
-    description: post.caption.slice(0, 160) || `Post by ${post.username} on Leonida Social`,
+    title: post.caption.slice(0, 60) || "Post",
+    description: post.caption.slice(0, 155) || `Post by ${post.username} on Leonida Social`,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: post.caption.slice(0, 60) || "Post on Leonida Social",
-      description: post.caption.slice(0, 160),
+      description: post.caption.slice(0, 155),
+      url: canonicalUrl,
+      images: imageUrl ? [{ url: imageUrl, alt: post.caption.slice(0, 80) }] : undefined,
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.caption.slice(0, 60) || "Post on Leonida Social",
       images: imageUrl ? [imageUrl] : undefined,
     },
   };
@@ -61,8 +71,37 @@ export default async function PostDetailPage({ params }: Props) {
   const liked = user ? await hasUserLikedPost(post.id, user.id, supabase) : false;
   const comments = await getComments(post.id, "recent", supabase);
 
+  const canonicalUrl = `https://grandtheftauto6.com/posts/${slug}`;
+  const imageUrl = post.images[0]
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${post.images[0].storagePath}`
+    : undefined;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SocialMediaPosting",
+    url: canonicalUrl,
+    headline: post.caption.slice(0, 110),
+    description: post.caption.slice(0, 155),
+    author: {
+      "@type": "Person",
+      name: post.displayName ?? post.username,
+      url: `https://grandtheftauto6.com/users/${post.username}`,
+    },
+    datePublished: post.createdAt,
+    image: imageUrl,
+    interactionStatistic: [
+      { "@type": "InteractionCounter", interactionType: "https://schema.org/LikeAction", userInteractionCount: post.likeCount },
+      { "@type": "InteractionCounter", interactionType: "https://schema.org/CommentAction", userInteractionCount: post.commentCount },
+    ],
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="flex flex-col lg:flex-row min-h-screen">
       {/* Left: Image Gallery (60%) */}
       <div className="lg:w-[60%] flex-shrink-0 bg-black flex items-center justify-center p-4 lg:p-8">
         <div className="w-full max-w-2xl">
@@ -154,5 +193,6 @@ export default async function PostDetailPage({ params }: Props) {
         </div>
       </div>
     </div>
+    </>
   );
 }

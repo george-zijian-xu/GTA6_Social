@@ -20,9 +20,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!profile) return { title: "User not found" };
 
+  const canonicalUrl = `https://grandtheftauto6.com/users/${username}`;
+
   return {
-    title: `${profile.displayName ?? profile.username} — Leonida Social`,
+    title: `${profile.displayName ?? profile.username} (@${profile.username})`,
     description: profile.bio ?? `${profile.username}'s profile on Leonida Social`,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      url: canonicalUrl,
+      type: "profile",
+      firstName: profile.displayName ?? profile.username,
+      username: profile.username,
+    },
+    twitter: { card: "summary" },
   };
 }
 
@@ -48,10 +58,27 @@ export default async function UserProfilePage({ params }: Props) {
     .filter((p: { author_id: string }) => p.author_id === profile.id)
     .map(mapFeedRow);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: profile.displayName ?? profile.username,
+    url: `https://grandtheftauto6.com/users/${profile.username}`,
+    description: profile.bio ?? undefined,
+    image: profile.avatarUrl ?? undefined,
+    interactionStatistic: [
+      { "@type": "InteractionCounter", interactionType: "https://schema.org/FollowAction", userInteractionCount: profile.followerCount },
+    ],
+  };
+
   const breakpointColumns = { default: 3, 1024: 3, 640: 2, 0: 1 };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="max-w-4xl mx-auto px-6 py-8">
       {/* Profile header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-8">
         {/* Avatar */}
@@ -112,5 +139,6 @@ export default async function UserProfilePage({ params }: Props) {
       {/* Post grid */}
       <UserPostGrid posts={userPosts} />
     </div>
+    </>
   );
 }
