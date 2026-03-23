@@ -138,7 +138,7 @@ describe("Feed", () => {
 
   test("cursor pagination returns next page without overlap", async () => {
     // Create 5 posts with distinct scores (different like counts, same age)
-    const posts = [];
+    const cursorPosts = [];
     for (let i = 5; i >= 1; i--) {
       const p = await createTestPost(
         authorA.id,
@@ -147,44 +147,50 @@ describe("Feed", () => {
         0,
         hoursAgo(1),
       );
-      posts.push(p);
+      cursorPosts.push(p);
     }
+    const cursorPostIds = new Set(cursorPosts.map((p) => p.id));
 
     // Freeze time for consistent scores across paginated calls
     const refTime = new Date().toISOString();
 
-    // Page 1: limit 2
-    const { data: page1, error: e1 } = await admin.rpc("get_feed", {
+    // Page 1: fetch enough to get our posts
+    const { data: page1Full, error: e1 } = await admin.rpc("get_feed", {
       p_viewer_id: null,
-      p_limit: 2,
+      p_limit: 50,
       p_ref_time: refTime,
     });
     expect(e1).toBeNull();
-    expect(page1!.length).toBeGreaterThanOrEqual(2);
 
-    // Use last row as cursor
-    const lastRow = page1![page1!.length - 1];
-    const { data: page2, error: e2 } = await admin.rpc("get_feed", {
+    // Filter to only our cursor test posts, take first 2 as "page 1"
+    const ourPosts = page1Full!.filter((r: { id: string }) => cursorPostIds.has(r.id));
+    expect(ourPosts.length).toBe(5);
+
+    // Use the 2nd post as cursor boundary
+    const cursorRow = ourPosts[1];
+    const { data: page2Full, error: e2 } = await admin.rpc("get_feed", {
       p_viewer_id: null,
-      p_cursor_score: lastRow.score,
-      p_cursor_created_at: lastRow.created_at,
-      p_cursor_id: lastRow.id,
-      p_limit: 2,
+      p_cursor_score: cursorRow.score,
+      p_cursor_created_at: cursorRow.created_at,
+      p_cursor_id: cursorRow.id,
+      p_limit: 50,
       p_ref_time: refTime,
     });
     expect(e2).toBeNull();
-    expect(page2!.length).toBeGreaterThanOrEqual(1);
 
-    // No overlap
-    const page1Ids = new Set(page1!.map((r: { id: string }) => r.id));
-    const page2Ids = page2!.map((r: { id: string }) => r.id);
-    for (const id of page2Ids) {
-      expect(page1Ids.has(id)).toBe(false);
+    // Filter page2 to our posts
+    const ourPage2 = page2Full!.filter((r: { id: string }) => cursorPostIds.has(r.id));
+    expect(ourPage2.length).toBe(3); // 5 total - 2 on page 1
+
+    // No overlap: page 1 top 2 should not appear in page 2
+    const page1Ids = new Set([ourPosts[0].id, ourPosts[1].id]);
+    for (const row of ourPage2) {
+      expect(page1Ids.has(row.id)).toBe(false);
     }
 
-    // Page 2 scores are lower or equal to page 1's last score
-    for (const row of page2!) {
-      expect(Number(row.score)).toBeLessThanOrEqual(Number(lastRow.score));
+    // Page 2 scores are lower or equal
+    for (const row of ourPage2) {
+      expect(Number(row.score)).toBeLessThanOrEqual(Number(cursorRow.score));
     }
   });
 });
