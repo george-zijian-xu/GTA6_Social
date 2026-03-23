@@ -20,7 +20,7 @@ export default async function NotificationsPage() {
   await markAsRead(user.id, supabase);
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
+    <div className="max-w-2xl mx-auto px-4 md:px-6 py-6 md:py-8 pb-20 md:pb-8">
       <h1 className="text-2xl font-bold text-foreground mb-6">Notifications</h1>
       <NotificationTabs likes={likes} comments={comments} follows={follows} />
     </div>

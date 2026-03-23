@@ -78,7 +78,7 @@ export default async function UserProfilePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 md:py-8 pb-20 md:pb-8">
       {/* Profile header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-8">
         {/* Avatar */}
@@ -119,7 +119,7 @@ export default async function UserProfilePage({ params }: Props) {
           )}
 
           {/* Stats */}
-          <div className="flex gap-6 mt-4">
+          <div className="flex flex-wrap gap-4 md:gap-6 mt-4">
             <div className="text-center">
               <span className="text-lg font-bold text-foreground">{formatCount(profile.followerCount)}</span>
               <span className="text-xs text-foreground-muted ml-1">Followers</span>

@@ -18,7 +18,7 @@ export default async function SearchPage({ searchParams }: Props) {
     : { posts: [], users: [] };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 md:py-8 pb-20 md:pb-8">
       <SearchResults initialQuery={query} initialResults={results} userId={user?.id ?? null} />
     </div>
   );

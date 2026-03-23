@@ -111,7 +111,7 @@ export default async function PostDetailPage({ params }: Props) {
       </div>
 
       {/* Right: Post Info (40%) */}
-      <div className="lg:w-[40%] flex flex-col bg-surface-card dark:bg-[#1e1e1e] border-l border-foreground/5">
+      <div className="lg:w-[40%] flex flex-col bg-surface-card dark:bg-[#1e1e1e] border-l border-foreground/5 pb-14 md:pb-0">
         {/* User header */}
         <div className="p-6 border-b border-foreground/5">
           <div className="flex items-center gap-3">

@@ -44,7 +44,7 @@ export function ImageGallery({ images, caption }: ImageGalleryProps) {
           {index > 0 && (
             <button
               onClick={() => setIndex((i) => i - 1)}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-12 h-12 md:w-10 md:h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
             >
               <span className="material-symbols-outlined text-[20px]">
                 chevron_left
@@ -54,7 +54,7 @@ export function ImageGallery({ images, caption }: ImageGalleryProps) {
           {index < images.length - 1 && (
             <button
               onClick={() => setIndex((i) => i + 1)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 md:w-10 md:h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
             >
               <span className="material-symbols-outlined text-[20px]">
                 chevron_right

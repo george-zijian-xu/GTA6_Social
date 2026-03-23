@@ -18,7 +18,7 @@ export default async function MapPage({ searchParams }: Props) {
   const locations = await getAllLocations(supabase);
 
   return (
-    <div className="fixed inset-0 md:left-64 z-30">
+    <div className="fixed inset-0 left-0 md:left-64 bottom-14 md:bottom-0 z-30">
       <Suspense fallback={
         <div className="w-full h-full flex items-center justify-center bg-surface-base dark:bg-[#0a0a0a]">
           <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-primary rounded-full animate-spin" />
