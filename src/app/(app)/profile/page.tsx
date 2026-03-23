@@ -1,10 +1,22 @@
-export default function ProfilePage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-foreground">Profile</h1>
-      <p className="mt-2 text-foreground-muted">
-        User profile will appear here.
-      </p>
-    </div>
-  );
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function ProfilePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect("/auth/login");
+
+  // Get the user's username from their profile
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  if (profile) {
+    redirect(`/users/${profile.username}`);
+  }
+
+  redirect("/");
 }
