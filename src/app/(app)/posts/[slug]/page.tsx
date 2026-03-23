@@ -3,11 +3,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPostBySlug, getComments } from "@/lib/post";
+import { hasUserLikedPost } from "@/lib/likes";
 import { formatCount } from "@/lib/format";
 import { ImageGallery } from "@/components/ImageGallery";
 import { MiniMapModule } from "@/components/MiniMapModule";
 import { CommentList } from "@/components/CommentList";
 import { ProfileHoverCard } from "@/components/ProfileHoverCard";
+import { LikeButton } from "@/components/LikeButton";
 import { ShareButton } from "./ShareButton";
 
 interface Props {
@@ -55,6 +57,8 @@ export default async function PostDetailPage({ params }: Props) {
 
   if (!post) notFound();
 
+  const { data: { user } } = await supabase.auth.getUser();
+  const liked = user ? await hasUserLikedPost(post.id, user.id, supabase) : false;
   const comments = await getComments(post.id, "recent", supabase);
 
   return (
@@ -124,7 +128,7 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* Comments section */}
         <div className="flex-1 px-6 pb-4 min-h-0 flex flex-col">
-          <CommentList initialComments={comments} postId={post.id} />
+          <CommentList initialComments={comments} postId={post.id} userId={user?.id ?? null} />
         </div>
 
         {/* Comment input (visual only) */}
@@ -148,22 +152,21 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* Action row */}
         <div className="px-6 py-3 border-t border-foreground/5 flex items-center gap-6">
-          <button className="flex items-center gap-1.5 text-foreground-muted hover:text-primary transition-colors">
-            <span className="material-symbols-outlined text-[20px]">
-              favorite
-            </span>
-            <span className="text-sm font-medium">
-              {formatCount(post.likeCount)}
-            </span>
-          </button>
-          <button className="flex items-center gap-1.5 text-foreground-muted">
+          <LikeButton
+            targetId={post.id}
+            targetType="post"
+            initialCount={post.likeCount}
+            initialLiked={liked}
+            userId={user?.id ?? null}
+          />
+          <div className="flex items-center gap-1.5 text-foreground-muted">
             <span className="material-symbols-outlined text-[20px]">
               chat_bubble_outline
             </span>
             <span className="text-sm font-medium">
               {formatCount(post.commentCount)}
             </span>
-          </button>
+          </div>
           <ShareButton />
         </div>
       </div>

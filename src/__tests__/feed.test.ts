@@ -59,6 +59,17 @@ describe("Feed", () => {
   let authorB: { id: string }; // followed by viewer
 
   beforeAll(async () => {
+    // Clean up orphan posts from previous failed runs
+    const { data: orphans } = await admin
+      .from("posts")
+      .select("id")
+      .like("slug", "cursor-%");
+    if (orphans) {
+      for (const o of orphans) {
+        await admin.from("posts").delete().eq("id", o.id);
+      }
+    }
+
     const ts = Date.now();
     viewerUser = await createTestUser(`viewer-${ts}@test.com`, `viewer${ts}`);
     authorA = await createTestUser(`authora-${ts}@test.com`, `authora${ts}`);
@@ -137,60 +148,54 @@ describe("Feed", () => {
   });
 
   test("cursor pagination returns next page without overlap", async () => {
-    // Create 5 posts with distinct scores (different like counts, same age)
+    // Create 4 posts with very high like counts so they rank above everything else
     const cursorPosts = [];
-    for (let i = 5; i >= 1; i--) {
+    for (let i = 4; i >= 1; i--) {
       const p = await createTestPost(
         authorA.id,
         `cursor-${i}-${Date.now()}`,
-        i * 20, // 100, 80, 60, 40, 20 likes
+        i * 1000, // 4000, 3000, 2000, 1000 likes — way above other test posts
         0,
         hoursAgo(1),
       );
       cursorPosts.push(p);
     }
-    const cursorPostIds = new Set(cursorPosts.map((p) => p.id));
 
-    // Freeze time for consistent scores across paginated calls
     const refTime = new Date().toISOString();
 
-    // Page 1: fetch enough to get our posts
-    const { data: page1Full, error: e1 } = await admin.rpc("get_feed", {
+    // Page 1: get top 2
+    const { data: page1, error: e1 } = await admin.rpc("get_feed", {
       p_viewer_id: null,
-      p_limit: 50,
+      p_limit: 2,
       p_ref_time: refTime,
     });
     expect(e1).toBeNull();
+    expect(page1).toHaveLength(2);
 
-    // Filter to only our cursor test posts, take first 2 as "page 1"
-    const ourPosts = page1Full!.filter((r: { id: string }) => cursorPostIds.has(r.id));
-    expect(ourPosts.length).toBe(5);
+    // These should be our top 2 cursor posts (4000 and 3000 likes)
+    expect(page1![0].id).toBe(cursorPosts[0].id);
+    expect(page1![1].id).toBe(cursorPosts[1].id);
 
-    // Use the 2nd post as cursor boundary
-    const cursorRow = ourPosts[1];
-    const { data: page2Full, error: e2 } = await admin.rpc("get_feed", {
+    // Page 2 using cursor from last row of page 1
+    const lastRow = page1![1];
+    const { data: page2, error: e2 } = await admin.rpc("get_feed", {
       p_viewer_id: null,
-      p_cursor_score: cursorRow.score,
-      p_cursor_created_at: cursorRow.created_at,
-      p_cursor_id: cursorRow.id,
-      p_limit: 50,
+      p_cursor_score: lastRow.score,
+      p_cursor_created_at: lastRow.created_at,
+      p_cursor_id: lastRow.id,
+      p_limit: 2,
       p_ref_time: refTime,
     });
     expect(e2).toBeNull();
+    expect(page2!.length).toBeGreaterThanOrEqual(2);
 
-    // Filter page2 to our posts
-    const ourPage2 = page2Full!.filter((r: { id: string }) => cursorPostIds.has(r.id));
-    expect(ourPage2.length).toBe(3); // 5 total - 2 on page 1
-
-    // No overlap: page 1 top 2 should not appear in page 2
-    const page1Ids = new Set([ourPosts[0].id, ourPosts[1].id]);
-    for (const row of ourPage2) {
+    // No overlap between page 1 and page 2
+    const page1Ids = new Set(page1!.map((r: { id: string }) => r.id));
+    for (const row of page2!) {
       expect(page1Ids.has(row.id)).toBe(false);
     }
 
-    // Page 2 scores are lower or equal
-    for (const row of ourPage2) {
-      expect(Number(row.score)).toBeLessThanOrEqual(Number(cursorRow.score));
-    }
+    // Page 2 first item should be our 3rd cursor post (2000 likes)
+    expect(page2![0].id).toBe(cursorPosts[2].id);
   });
 });

@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Comment } from "@/lib/post";
-import { formatCount } from "@/lib/format";
+import { LikeButton } from "./LikeButton";
 
 interface CommentListProps {
   initialComments: Comment[];
   postId: string;
+  userId: string | null;
 }
 
 function timeAgo(dateStr: string): string {
@@ -22,7 +23,7 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(days / 30)}mo`;
 }
 
-export function CommentList({ initialComments, postId }: CommentListProps) {
+export function CommentList({ initialComments, postId, userId }: CommentListProps) {
   const [sort, setSort] = useState<"recent" | "top">("recent");
   const [comments, setComments] = useState(initialComments);
 
@@ -127,14 +128,15 @@ export function CommentList({ initialComments, postId }: CommentListProps) {
                   {comment.body}
                 </p>
                 <div className="flex items-center gap-4 mt-1.5">
-                  <button className="flex items-center gap-1 text-foreground-muted hover:text-primary transition-colors">
-                    <span className="material-symbols-outlined text-[14px]">
-                      favorite
-                    </span>
-                    <span className="text-[11px] font-medium">
-                      {formatCount(comment.likeCount)}
-                    </span>
-                  </button>
+                  <LikeButton
+                    targetId={comment.id}
+                    targetType="comment"
+                    initialCount={comment.likeCount}
+                    initialLiked={false}
+                    userId={userId}
+                    iconSize="text-[14px]"
+                    textSize="text-[11px]"
+                  />
                   <button className="text-[11px] font-semibold text-foreground-muted hover:text-foreground transition-colors">
                     Reply
                   </button>
