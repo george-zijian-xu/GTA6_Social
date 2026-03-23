@@ -36,7 +36,7 @@ export function ProfileHoverCard({ username, children }: ProfileHoverCardProps) 
     // Fetch profile + follower count + recent post images
     const { data: profileRow } = await supabase
       .from("profiles")
-      .select("username, display_name, avatar_url")
+      .select("id, username, display_name, avatar_url")
       .eq("username", username)
       .single();
 
@@ -48,13 +48,13 @@ export function ProfileHoverCard({ username, children }: ProfileHoverCardProps) 
     const { count: followerCount } = await supabase
       .from("follows")
       .select("*", { count: "exact", head: true })
-      .eq("following_id", profileRow.username);
+      .eq("following_id", profileRow.id);
 
     // Get 3 recent post images
     const { data: recentPosts } = await supabase
       .from("posts")
       .select("id, post_images ( storage_path )")
-      .eq("author_id", username)
+      .eq("author_id", profileRow.id)
       .order("created_at", { ascending: false })
       .limit(3);
 

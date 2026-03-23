@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { getUserProfile } from "@/lib/profile";
 import { isFollowing } from "@/lib/follows";
@@ -82,10 +83,20 @@ export default async function UserProfilePage({ params }: Props) {
       {/* Profile header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-8">
         {/* Avatar */}
-        <div className="w-24 h-24 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
-          <span className="material-symbols-outlined text-[40px] text-foreground-muted">
-            person
-          </span>
+        <div className="w-24 h-24 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0 overflow-hidden">
+          {profile.avatarUrl ? (
+            <Image
+              src={profile.avatarUrl}
+              alt={profile.displayName ?? profile.username}
+              width={96}
+              height={96}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="material-symbols-outlined text-[40px] text-foreground-muted">
+              person
+            </span>
+          )}
         </div>
 
         <div className="flex-1 min-w-0">
