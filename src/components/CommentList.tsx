@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Comment } from "@/lib/post";
 import { LikeButton } from "./LikeButton";
+import { ReportButton } from "./ReportButton";
 import { addComment, containsProfanity } from "@/lib/comments";
 import { createClient } from "@/lib/supabase/client";
 
@@ -199,6 +200,9 @@ export function CommentList({ initialComments, postId, userId }: CommentListProp
             >
               Reply
             </button>
+            {userId && userId !== comment.authorId && (
+              <ReportButton commentId={comment.id} />
+            )}
           </div>
         </div>
       </div>

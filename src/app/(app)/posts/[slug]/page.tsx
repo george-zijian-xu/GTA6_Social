@@ -10,6 +10,7 @@ import { MiniMapModule } from "@/components/MiniMapModule";
 import { CommentList } from "@/components/CommentList";
 import { ProfileHoverCard } from "@/components/ProfileHoverCard";
 import { LikeButton } from "@/components/LikeButton";
+import { ReportButton } from "@/components/ReportButton";
 import { ShareButton } from "./ShareButton";
 
 interface Props {
@@ -190,6 +191,9 @@ export default async function PostDetailPage({ params }: Props) {
             </span>
           </div>
           <ShareButton />
+          {user && user.id !== post.authorId && (
+            <ReportButton postId={post.id} />
+          )}
         </div>
       </div>
     </div>
