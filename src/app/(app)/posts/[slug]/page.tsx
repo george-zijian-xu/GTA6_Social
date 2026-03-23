@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { getPostBySlug, getComments } from "@/lib/post";
 import { hasUserLikedPost } from "@/lib/likes";
@@ -117,10 +118,20 @@ export default async function PostDetailPage({ params }: Props) {
           <div className="flex items-center gap-3">
             <ProfileHoverCard username={post.username}>
               <Link href={`/users/${post.username}`}>
-                <div className="w-12 h-12 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-[20px] text-foreground-muted">
-                    person
-                  </span>
+                <div className="w-12 h-12 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {post.avatarUrl ? (
+                    <Image
+                      src={post.avatarUrl}
+                      alt={post.displayName ?? post.username}
+                      width={48}
+                      height={48}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="material-symbols-outlined text-[20px] text-foreground-muted">
+                      person
+                    </span>
+                  )}
                 </div>
               </Link>
             </ProfileHoverCard>
