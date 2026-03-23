@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { togglePostLike, toggleCommentLike } from "@/lib/likes";
@@ -30,6 +30,10 @@ export function LikeButton({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  // Sync state when the parent re-renders with fresh server data
+  useEffect(() => { setCount(initialCount); }, [initialCount]);
+  useEffect(() => { setLiked(initialLiked); }, [initialLiked]);
+
   async function handleClick() {
     if (!userId) {
       router.push("/auth/login");
@@ -39,7 +43,7 @@ export function LikeButton({
     // Optimistic update
     const newLiked = !liked;
     setLiked(newLiked);
-    setCount((c) => c + (newLiked ? 1 : -1));
+    setCount((c) => Math.max(0, c + (newLiked ? 1 : -1)));
 
     startTransition(async () => {
       try {

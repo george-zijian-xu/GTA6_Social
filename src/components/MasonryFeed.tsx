@@ -8,6 +8,7 @@ import { fetchFeedPageClient, type FeedPost, type FeedCursor } from "@/lib/feed"
 interface MasonryFeedProps {
   initialPosts: FeedPost[];
   initialCursor: FeedCursor | null;
+  userId?: string | null;
 }
 
 const breakpointColumns = {
@@ -18,7 +19,7 @@ const breakpointColumns = {
   0: 1,
 };
 
-export function MasonryFeed({ initialPosts, initialCursor }: MasonryFeedProps) {
+export function MasonryFeed({ initialPosts, initialCursor, userId = null }: MasonryFeedProps) {
   const [posts, setPosts] = useState(initialPosts);
   const [cursor, setCursor] = useState(initialCursor);
   const [loading, setLoading] = useState(false);
@@ -77,7 +78,7 @@ export function MasonryFeed({ initialPosts, initialCursor }: MasonryFeedProps) {
         columnClassName="masonry-grid_column"
       >
         {posts.map((post, index) => (
-          <PostCard key={post.id} post={post} priority={index < 3} />
+          <PostCard key={post.id} post={post} priority={index < 3} userId={userId} />
         ))}
       </Masonry>
 

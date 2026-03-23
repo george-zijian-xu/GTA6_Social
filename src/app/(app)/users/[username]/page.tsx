@@ -148,7 +148,7 @@ export default async function UserProfilePage({ params }: Props) {
       </div>
 
       {/* Post grid */}
-      <UserPostGrid posts={userPosts} />
+      <UserPostGrid posts={userPosts} userId={user?.id ?? null} />
     </div>
     </>
   );

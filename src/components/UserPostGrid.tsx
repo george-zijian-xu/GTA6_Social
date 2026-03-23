@@ -6,11 +6,12 @@ import type { FeedPost } from "@/lib/feed";
 
 interface UserPostGridProps {
   posts: FeedPost[];
+  userId?: string | null;
 }
 
 const breakpointColumns = { default: 3, 1024: 3, 640: 2, 0: 1 };
 
-export function UserPostGrid({ posts }: UserPostGridProps) {
+export function UserPostGrid({ posts, userId = null }: UserPostGridProps) {
   if (posts.length === 0) {
     return (
       <div className="text-center py-16">
@@ -29,7 +30,7 @@ export function UserPostGrid({ posts }: UserPostGridProps) {
       columnClassName="masonry-grid_column"
     >
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post.id} post={post} userId={userId} />
       ))}
     </Masonry>
   );

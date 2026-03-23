@@ -59,6 +59,7 @@ export async function search(
       imageHeight: first?.height ?? null,
       locationName: null,
       locationSlug: null,
+      initialLiked: false,
     };
   });
 

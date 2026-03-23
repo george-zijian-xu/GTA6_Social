@@ -1,4 +1,5 @@
 import { fetchFeedPage } from "@/lib/feed-server";
+import { createClient } from "@/lib/supabase/server";
 import { MasonryFeed } from "@/components/MasonryFeed";
 import { SearchBar } from "@/components/SearchBar";
 import type { Metadata } from "next";
@@ -10,7 +11,11 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const { posts, nextCursor } = await fetchFeedPage();
+  const supabase = await createClient();
+  const [{ posts, nextCursor }, { data: { user } }] = await Promise.all([
+    fetchFeedPage(),
+    supabase.auth.getUser(),
+  ]);
 
   return (
     <div>
@@ -30,7 +35,7 @@ export default async function Home() {
           </button>
         </div>
 
-        <MasonryFeed initialPosts={posts} initialCursor={nextCursor} />
+        <MasonryFeed initialPosts={posts} initialCursor={nextCursor} userId={user?.id ?? null} />
       </div>
     </div>
   );

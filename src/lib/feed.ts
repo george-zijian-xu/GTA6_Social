@@ -21,6 +21,7 @@ export interface FeedPost {
   imageHeight: number | null;
   locationName: string | null;
   locationSlug: string | null;
+  initialLiked: boolean;
 }
 
 export interface FeedCursor {
@@ -58,6 +59,7 @@ export function mapFeedRow(row: any): FeedPost {
     imageHeight: row.image_height,
     locationName: row.location_name,
     locationSlug: row.location_slug,
+    initialLiked: row.viewer_liked ?? false,
   };
 }
 

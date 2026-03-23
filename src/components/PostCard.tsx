@@ -1,14 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { FeedPost } from "@/lib/feed";
-import { formatCount } from "@/lib/format";
+import { LikeButton } from "@/components/LikeButton";
 
 interface PostCardProps {
   post: FeedPost;
   priority?: boolean;
+  userId?: string | null;
 }
 
-export function PostCard({ post, priority = false }: PostCardProps) {
+export function PostCard({ post, priority = false, userId = null }: PostCardProps) {
   const imageUrl = post.imagePath
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${post.imagePath}`
     : null;
@@ -83,13 +84,16 @@ export function PostCard({ post, priority = false }: PostCardProps) {
             </span>
           </Link>
 
-          <div className="flex items-center gap-1 text-foreground-muted flex-shrink-0">
-            <span className="material-symbols-outlined text-[14px]">
-              favorite
-            </span>
-            <span className="text-[0.7rem] font-medium">
-              {formatCount(post.likeCount)}
-            </span>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <LikeButton
+              targetId={post.id}
+              targetType="post"
+              initialCount={post.likeCount}
+              initialLiked={post.initialLiked}
+              userId={userId}
+              iconSize="text-[14px]"
+              textSize="text-[0.7rem]"
+            />
           </div>
         </div>
       </div>
