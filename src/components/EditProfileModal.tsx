@@ -40,7 +40,7 @@ export function EditProfileModal({ open, onClose, profile }: EditProfileModalPro
       // Upload avatar if changed
       if (avatarFile) {
         const ext = avatarFile.name.split(".").pop() || "jpg";
-        const path = `avatars/${user.id}.${ext}`;
+        const path = `${user.id}.${ext}`;
         const { error: uploadErr } = await supabase.storage
           .from("avatars")
           .upload(path, avatarFile, { upsert: true });

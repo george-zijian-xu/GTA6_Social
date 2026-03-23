@@ -137,7 +137,7 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
             .from("post-images")
             .upload(path, img.file);
           if (uploadErr) throw uploadErr;
-          uploadedImages.push({ storagePath: path, width: img.width, height: img.height });
+          uploadedImages.push({ storagePath: `post-images/${path}`, width: img.width, height: img.height });
         }
       }
 
