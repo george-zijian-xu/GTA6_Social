@@ -123,6 +123,8 @@ export default async function PostDetailPage({ params }: Props) {
           <MiniMapModule
             locationName={post.locationName}
             locationSlug={post.locationSlug}
+            igX={post.locationIgX}
+            igY={post.locationIgY}
           />
         </div>
 

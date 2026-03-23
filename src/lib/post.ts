@@ -25,6 +25,8 @@ export interface PostDetail {
   avatarUrl: string | null;
   locationName: string | null;
   locationSlug: string | null;
+  locationIgX: number | null;
+  locationIgY: number | null;
   images: PostImage[];
 }
 
@@ -53,7 +55,7 @@ export async function getPostBySlug(
       id, author_id, caption, slug, location_id,
       like_count, comment_count, created_at,
       profiles!posts_author_id_fkey ( username, display_name, avatar_url ),
-      locations ( name, slug )
+      locations ( name, slug, ig_x, ig_y )
     `)
     .eq("slug", slug)
     .single();
@@ -86,6 +88,8 @@ export async function getPostBySlug(
     avatarUrl: profile?.avatar_url ?? null,
     locationName: location?.name ?? null,
     locationSlug: location?.slug ?? null,
+    locationIgX: location?.ig_x ?? null,
+    locationIgY: location?.ig_y ?? null,
     images: (images ?? []).map((img) => ({
       id: img.id,
       storagePath: img.storage_path,
