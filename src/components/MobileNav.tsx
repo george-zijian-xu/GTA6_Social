@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
   { href: "/", label: "Discover", icon: "explore" },
@@ -12,6 +14,21 @@ const navItems = [
 
 export function MobileNav() {
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        supabase
+          .from("notifications")
+          .select("*", { count: "exact", head: true })
+          .eq("target_user_id", data.user.id)
+          .is("read_at", null)
+          .then(({ count }) => setUnreadCount(count ?? 0));
+      }
+    });
+  }, [pathname]);
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -33,8 +50,11 @@ export function MobileNav() {
                   : "text-foreground-muted hover:text-foreground"
               }`}
             >
-              <span className="material-symbols-outlined text-[22px]">
+              <span className="material-symbols-outlined text-[22px] relative">
                 {item.icon}
+                {item.href === "/notifications" && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-primary" />
+                )}
               </span>
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>

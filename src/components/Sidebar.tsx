@@ -23,11 +23,22 @@ export function Sidebar({ onPostClick }: SidebarProps) {
   const router = useRouter();
   const { theme, toggle } = useTheme();
   const [user, setUser] = useState<User | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-  }, []);
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+      if (data.user) {
+        supabase
+          .from("notifications")
+          .select("*", { count: "exact", head: true })
+          .eq("target_user_id", data.user.id)
+          .is("read_at", null)
+          .then(({ count }) => setUnreadCount(count ?? 0));
+      }
+    });
+  }, [pathname]); // Refresh on navigation
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -68,6 +79,11 @@ export function Sidebar({ onPostClick }: SidebarProps) {
                 {item.icon}
               </span>
               {item.label}
+              {item.href === "/notifications" && unreadCount > 0 && (
+                <span className="ml-auto w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </Link>
           );
         })}
