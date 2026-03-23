@@ -115,6 +115,13 @@ export function Sidebar({ onPostClick }: SidebarProps) {
           <span className="material-symbols-outlined text-[16px]">policy</span>
           Privacy
         </Link>
+        <Link
+          href="/dmca"
+          className="flex items-center gap-3 text-xs font-medium text-foreground-muted hover:text-foreground transition-colors"
+        >
+          <span className="material-symbols-outlined text-[16px]">copyright</span>
+          DMCA
+        </Link>
         <button
           onClick={toggle}
           className="flex items-center gap-3 text-xs font-medium text-foreground-muted hover:text-foreground transition-colors w-full text-left"
