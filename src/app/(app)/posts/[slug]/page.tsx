@@ -131,25 +131,6 @@ export default async function PostDetailPage({ params }: Props) {
           <CommentList initialComments={comments} postId={post.id} userId={user?.id ?? null} />
         </div>
 
-        {/* Comment input (visual only) */}
-        <div className="px-6 py-3 border-t border-foreground/5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-[14px] text-foreground-muted">
-                person
-              </span>
-            </div>
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                placeholder="Add a comment..."
-                disabled
-                className="w-full rounded-xl bg-surface-secondary dark:bg-[#2a2a2a] px-4 py-2.5 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-            </div>
-          </div>
-        </div>
-
         {/* Action row */}
         <div className="px-6 py-3 border-t border-foreground/5 flex items-center gap-6">
           <LikeButton

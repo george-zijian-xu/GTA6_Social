@@ -38,6 +38,7 @@ export interface Comment {
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
+  parentCommentId: string | null;
 }
 
 // --- Queries ---
@@ -104,7 +105,7 @@ export async function getComments(
   let query = client
     .from("comments")
     .select(`
-      id, post_id, author_id, body, like_count, created_at,
+      id, post_id, author_id, body, like_count, created_at, parent_comment_id,
       profiles!comments_author_id_fkey ( username, display_name, avatar_url )
     `)
     .eq("post_id", postId);
@@ -131,6 +132,7 @@ export async function getComments(
       username: profile?.username ?? "",
       displayName: profile?.display_name ?? null,
       avatarUrl: profile?.avatar_url ?? null,
+      parentCommentId: row.parent_comment_id ?? null,
     };
   });
 }
