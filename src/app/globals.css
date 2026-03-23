@@ -2,7 +2,7 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme inline {
+@theme {
   --color-primary: #ff2442;
   --color-primary-hover: #e61e3a;
 
@@ -28,12 +28,7 @@ body {
   font-family: var(--font-sans);
 }
 
-.dark body {
-  background: #0a0a0a;
-  color: #ededed;
-}
-
-/* Dark mode: override theme CSS custom properties using :root.dark for higher specificity */
+/* Dark mode: override theme tokens — works because @theme (no inline) generates var() references */
 :root.dark {
   --color-surface-base: #0a0a0a;
   --color-surface-secondary: #1a1a1a;
