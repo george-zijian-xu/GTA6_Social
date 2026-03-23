@@ -13,20 +13,25 @@ export default async function Home() {
   const { posts, nextCursor } = await fetchFeedPage();
 
   return (
-    <div className="px-4 md:px-10 pt-6 pb-20 md:pb-12">
-      {/* Search bar */}
-      <div className="mb-6">
-        <SearchBar />
-      </div>
+    <div>
+      {/* Search header — matches Stitch h-28 */}
+      <header className="h-28 flex items-center px-4 md:px-10">
+        <div className="w-full max-w-2xl">
+          <SearchBar />
+        </div>
+      </header>
 
-      {/* Tab header */}
-      <div className="flex border-b border-foreground/5 mb-8 mt-1.5">
-        <button className="pb-3 border-b-2 border-primary text-primary font-bold text-sm tracking-wide">
-          Recommendations
-        </button>
-      </div>
+      {/* Content */}
+      <div className="px-4 md:px-10 pb-20 md:pb-12">
+        {/* Tab header */}
+        <div className="flex border-b border-foreground/5 mb-8">
+          <button className="pb-3 border-b-2 border-primary text-primary font-bold text-sm tracking-wide">
+            Recommendations
+          </button>
+        </div>
 
-      <MasonryFeed initialPosts={posts} initialCursor={nextCursor} />
+        <MasonryFeed initialPosts={posts} initialCursor={nextCursor} />
+      </div>
     </div>
   );
 }

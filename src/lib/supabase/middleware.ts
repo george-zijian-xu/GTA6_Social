@@ -2,6 +2,17 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
+  // If we receive a `code` param on any non-callback path, forward to /auth/callback
+  // This handles Supabase OAuth redirecting to the Site URL instead of our callback
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && !request.nextUrl.pathname.startsWith("/auth/callback")) {
+    const callbackUrl = new URL("/auth/callback", request.nextUrl.origin);
+    callbackUrl.searchParams.set("code", code);
+    const next = request.nextUrl.searchParams.get("next");
+    if (next) callbackUrl.searchParams.set("next", next);
+    return NextResponse.redirect(callbackUrl);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

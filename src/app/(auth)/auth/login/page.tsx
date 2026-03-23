@@ -70,6 +70,13 @@ function LoginForm() {
           </p>
         </div>
 
+        {/* Back to home link */}
+        <div className="text-center mb-4">
+          <a href="/" className="text-xs text-foreground-muted hover:text-foreground transition-colors">
+            &larr; Back to Discover
+          </a>
+        </div>
+
         {/* Mode toggle */}
         <div className="flex rounded-lg bg-surface-secondary dark:bg-[#2a2a2a] p-1 mb-6">
           <button

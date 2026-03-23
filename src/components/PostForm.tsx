@@ -105,23 +105,27 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
 
     try {
       const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
 
-      // Upload images to Supabase Storage
+      // Upload images to Supabase Storage (if authenticated)
       const uploadedImages: { storagePath: string; width: number; height: number }[] = [];
-      for (const img of images) {
-        const ext = img.file.name.split(".").pop() || "jpg";
-        const path = `posts/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error: uploadErr } = await supabase.storage
-          .from("post-images")
-          .upload(path, img.file);
-        if (uploadErr) throw uploadErr;
-        uploadedImages.push({ storagePath: path, width: img.width, height: img.height });
+      if (user && images.length > 0) {
+        for (const img of images) {
+          const ext = img.file.name.split(".").pop() || "jpg";
+          const path = `posts/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: uploadErr } = await supabase.storage
+            .from("post-images")
+            .upload(path, img.file);
+          if (uploadErr) throw uploadErr;
+          uploadedImages.push({ storagePath: path, width: img.width, height: img.height });
+        }
       }
 
-      // Get user
-      const { data: { user } } = await supabase.auth.getUser();
+      // Auth check — only redirect AFTER user has committed to publishing
       if (!user) {
-        router.push("/auth/login");
+        setError("Please log in to publish.");
+        setSubmitting(false);
+        setTimeout(() => router.push("/auth/login"), 1500);
         return;
       }
 

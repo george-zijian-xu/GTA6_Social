@@ -33,6 +33,16 @@ body {
   color: #ededed;
 }
 
+/* Dark mode: override theme CSS custom properties */
+.dark {
+  --color-surface-base: #0a0a0a;
+  --color-surface-secondary: #1a1a1a;
+  --color-surface-card: #141414;
+  --color-foreground: #ededed;
+  --color-foreground-muted: #9ca3af;
+  --color-background: #0a0a0a;
+}
+
 /* Material Symbols sizing helper */
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
