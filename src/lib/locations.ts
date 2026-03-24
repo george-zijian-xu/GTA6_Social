@@ -7,6 +7,8 @@ export interface MapLocation {
   category: string | null;
   igX: number | null;
   igY: number | null;
+  rlLat: number | null;
+  rlLng: number | null;
   postCount: number;
 }
 
@@ -15,7 +17,7 @@ export async function getLocationsWithPosts(
 ): Promise<MapLocation[]> {
   const { data, error } = await client
     .from("locations")
-    .select("id, name, slug, category, ig_x, ig_y, post_count")
+    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, post_count")
     .gt("post_count", 0)
     .order("post_count", { ascending: false });
 
@@ -28,6 +30,8 @@ export async function getLocationsWithPosts(
     category: row.category,
     igX: row.ig_x,
     igY: row.ig_y,
+    rlLat: row.rl_lat ?? null,
+    rlLng: row.rl_lng ?? null,
     postCount: row.post_count,
   }));
 }
@@ -37,7 +41,7 @@ export async function getAllLocations(
 ): Promise<MapLocation[]> {
   const { data, error } = await client
     .from("locations")
-    .select("id, name, slug, category, ig_x, ig_y, post_count")
+    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, post_count")
     .order("name");
 
   if (error || !data) return [];
@@ -49,6 +53,8 @@ export async function getAllLocations(
     category: row.category,
     igX: row.ig_x,
     igY: row.ig_y,
+    rlLat: row.rl_lat ?? null,
+    rlLng: row.rl_lng ?? null,
     postCount: row.post_count,
   }));
 }
@@ -59,7 +65,7 @@ export async function getLocationBySlug(
 ): Promise<MapLocation | null> {
   const { data, error } = await client
     .from("locations")
-    .select("id, name, slug, category, ig_x, ig_y, post_count")
+    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, post_count")
     .eq("slug", slug)
     .single();
 
@@ -72,6 +78,8 @@ export async function getLocationBySlug(
     category: data.category,
     igX: data.ig_x,
     igY: data.ig_y,
+    rlLat: data.rl_lat ?? null,
+    rlLng: data.rl_lng ?? null,
     postCount: data.post_count,
   };
 }

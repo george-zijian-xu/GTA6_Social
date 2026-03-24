@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import type { MapLocation } from "@/lib/locations";
 
@@ -18,5 +19,58 @@ interface MapClientProps {
 }
 
 export function MapClient({ locations, focusSlug }: MapClientProps) {
-  return <LeafletMap locations={locations} focusSlug={focusSlug} layer="game" />;
+  const [layer, setLayer] = useState<"game" | "real">("game");
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="relative w-full h-full">
+      {/* Map — key forces remount on layer change (CRS cannot be swapped in place) */}
+      <LeafletMap
+        key={layer}
+        locations={locations}
+        focusSlug={focusSlug}
+        layer={layer}
+        isDark={isDark}
+      />
+
+      {/* Toggle button */}
+      <div className="absolute top-4 right-4 z-[1000] flex rounded-xl overflow-hidden shadow-lg border border-foreground/10 bg-surface-card dark:bg-[#1e1e1e]">
+        <button
+          onClick={() => setLayer("game")}
+          className={`px-3 py-2 text-xs font-bold transition-colors ${
+            layer === "game"
+              ? "bg-primary text-white"
+              : "text-foreground-muted hover:text-foreground"
+          }`}
+        >
+          <span className="material-symbols-outlined text-[16px] align-middle mr-1">
+            sports_esports
+          </span>
+          Leonida
+        </button>
+        <button
+          onClick={() => setLayer("real")}
+          className={`px-3 py-2 text-xs font-bold transition-colors ${
+            layer === "real"
+              ? "bg-primary text-white"
+              : "text-foreground-muted hover:text-foreground"
+          }`}
+        >
+          <span className="material-symbols-outlined text-[16px] align-middle mr-1">
+            public
+          </span>
+          Florida
+        </button>
+      </div>
+    </div>
+  );
 }

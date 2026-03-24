@@ -29,7 +29,7 @@ export function MiniMapModule({ locationName, locationSlug, igX, igY }: MiniMapM
       {hasCoords ? (
         <div className="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-300">
           <LeafletMap
-            locations={[{ id: "", name: locationName, slug: locationSlug, category: null, igX, igY, postCount: 1 }]}
+            locations={[{ id: "", name: locationName, slug: locationSlug, category: null, igX, igY, rlLat: null, rlLng: null, postCount: 1 }]}
             mini
             center={[igY!, igX!]}
           />

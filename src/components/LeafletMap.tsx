@@ -19,16 +19,18 @@ interface LeafletMapProps {
   focusSlug?: string;
   mini?: boolean;
   center?: [number, number];
-  /** 'game' uses GTA VI tiles + in-game CRS. 'real' uses OSM/CartoDB + WGS84. */
+  /** 'game' uses GTA VI tiles + in-game CRS. 'real' uses CartoDB + WGS84. */
   layer?: "game" | "real";
+  isDark?: boolean;
 }
 
 // Real-world defaults (Florida / Vice City area)
 const REAL_DEFAULT_CENTER: [number, number] = [25.76, -80.19];
 const REAL_DEFAULT_ZOOM = 11;
-const REAL_TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-const REAL_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const CARTO_LIGHT = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+const CARTO_DARK = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+const CARTO_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
 // GTA tile config
 const GTA_TILESET = "yanis,10";
@@ -54,6 +56,7 @@ export function LeafletMap({
   mini = false,
   center,
   layer = "real",
+  isDark = false,
 }: LeafletMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -115,9 +118,10 @@ export function LeafletMap({
         attribution: 'GTA VI map tiles — <a href="https://map.gtadb.org">gtadb.org community</a>',
       }).addTo(map);
     } else {
-      L.tileLayer(REAL_TILE_URL, {
-        attribution: REAL_ATTRIBUTION,
-        maxZoom: 18,
+      L.tileLayer(isDark ? CARTO_DARK : CARTO_LIGHT, {
+        attribution: CARTO_ATTRIBUTION,
+        maxZoom: 19,
+        subdomains: "abcd",
       }).addTo(map);
     }
 
@@ -126,13 +130,15 @@ export function LeafletMap({
     let maxMarker: L.CircleMarker | null = null;
 
     for (const loc of locations) {
-      // Game layer uses igX/igY; real layer uses igX/igY as lat/lng placeholder
-      // (real rl_lat/rl_lng support comes in #35)
-      if (loc.igX == null || loc.igY == null) continue;
+      let latlng: [number, number] | null = null;
 
-      const latlng: [number, number] = isGame
-        ? [loc.igY, loc.igX]
-        : [loc.igY, loc.igX]; // both same for now; rl coords added in #35
+      if (isGame) {
+        if (loc.igX != null && loc.igY != null) latlng = [loc.igY, loc.igX];
+      } else {
+        if (loc.rlLat != null && loc.rlLng != null) latlng = [loc.rlLat, loc.rlLng];
+      }
+
+      if (!latlng) continue;
 
       const size = pinSize(loc.postCount);
       const color = pinColor(loc.postCount);
