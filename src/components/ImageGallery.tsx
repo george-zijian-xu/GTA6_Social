@@ -25,18 +25,23 @@ export function ImageGallery({ images, caption }: ImageGalleryProps) {
   const current = images[index];
   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${current.storagePath}`;
   const multi = images.length > 1;
+  const aspectRatio = current.width && current.height
+    ? `${current.width} / ${current.height}`
+    : "4 / 3";
 
   return (
     <div className="relative w-full rounded-2xl overflow-hidden bg-black group">
-      <Image
-        src={imageUrl}
-        alt={current.altText ?? caption.slice(0, 80)}
-        width={current.width ?? 800}
-        height={current.height ?? 600}
-        className="w-full h-auto object-contain max-h-[80vh]"
-        sizes="(max-width: 768px) 100vw, 60vw"
-        priority={index === 0}
-      />
+      {/* Aspect-ratio container caps height at 80vh; fill image renders at full res */}
+      <div className="relative w-full max-h-[80vh]" style={{ aspectRatio }}>
+        <Image
+          src={imageUrl}
+          alt={current.altText ?? caption.slice(0, 80)}
+          fill
+          className="object-contain"
+          sizes="(max-width: 768px) 100vw, 60vw"
+          priority={index === 0}
+        />
+      </div>
 
       {/* Navigation arrows */}
       {multi && (
