@@ -13,6 +13,7 @@ import { ProfileHoverCard } from "@/components/ProfileHoverCard";
 import { LikeButton } from "@/components/LikeButton";
 import { ReportButton } from "@/components/ReportButton";
 import { PostNav } from "@/components/PostNav";
+import { PostDetailLeft } from "@/components/PostDetailLeft";
 import { ShareButton } from "./ShareButton";
 
 interface Props {
@@ -111,12 +112,12 @@ export default async function PostDetailPage({ params }: Props) {
       />
       <div className="flex flex-col lg:flex-row min-h-screen">
       {/* Left: Image Gallery (60%) */}
-      <div className="lg:w-[60%] flex-shrink-0 bg-black flex items-center justify-center p-4 lg:p-8 relative">
+      <PostDetailLeft>
         <PostNav currentSlug={slug} />
         <div className="w-full max-w-2xl">
           <ImageGallery images={post.images} caption={post.caption} />
         </div>
-      </div>
+      </PostDetailLeft>
 
       {/* Right: Post Info (40%) */}
       <div className="lg:w-[40%] flex flex-col bg-surface-card dark:bg-[#1e1e1e] border-l border-foreground/5 pb-14 md:pb-0">
@@ -125,7 +126,7 @@ export default async function PostDetailPage({ params }: Props) {
           <div className="flex items-center gap-3">
             <ProfileHoverCard username={post.username}>
               <Link href={`/users/${post.username}`}>
-                <div className="w-12 h-12 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center shrink-0 overflow-hidden">
                   {post.avatarUrl ? (
                     <Image
                       src={post.avatarUrl}

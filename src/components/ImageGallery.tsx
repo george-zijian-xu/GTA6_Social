@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { PostImage } from "@/lib/post";
 
@@ -12,9 +12,19 @@ interface ImageGalleryProps {
 export function ImageGallery({ images, caption }: ImageGalleryProps) {
   const [index, setIndex] = useState(0);
 
+  useEffect(() => {
+    if (images.length <= 1) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "ArrowLeft") setIndex((i) => Math.max(0, i - 1));
+      if (e.key === "ArrowRight") setIndex((i) => Math.min(images.length - 1, i + 1));
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [images.length]);
+
   if (images.length === 0) {
     return (
-      <div className="aspect-[4/3] w-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center rounded-2xl">
+      <div className="aspect-4/3 w-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center rounded-2xl">
         <span className="material-symbols-outlined text-[48px] text-foreground-muted">
           image
         </span>

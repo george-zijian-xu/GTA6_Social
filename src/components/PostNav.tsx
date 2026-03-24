@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface PostNavProps {
@@ -25,42 +24,31 @@ export function PostNav({ currentSlug }: PostNavProps) {
     } catch { /* ignore */ }
   }, [currentSlug]);
 
+  // ↑/↓ keyboard shortcuts for prev/next post
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "ArrowUp" && prevSlug) {
+        e.preventDefault();
+        router.push(`/posts/${prevSlug}`);
+      }
+      if (e.key === "ArrowDown" && nextSlug) {
+        e.preventDefault();
+        router.push(`/posts/${nextSlug}`);
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [prevSlug, nextSlug, router]);
+
   return (
-    <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between pointer-events-none">
-      {/* Back to feed */}
+    <div className="absolute top-4 left-4 z-10 pointer-events-none">
       <button
-        onClick={() => router.back()}
-        className="pointer-events-auto w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
-        aria-label="Back"
+        onClick={() => router.push("/")}
+        className="pointer-events-auto w-10 h-10 rounded-full bg-foreground/10 backdrop-blur-sm flex items-center justify-center text-foreground hover:bg-foreground/20 transition-colors"
+        aria-label="Back to feed"
       >
         <span className="material-symbols-outlined text-[20px]">arrow_back</span>
       </button>
-
-      {/* Prev / Next */}
-      <div className="pointer-events-auto flex gap-2">
-        {prevSlug ? (
-          <Link
-            href={`/posts/${prevSlug}`}
-            className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
-            aria-label="Previous post"
-          >
-            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-          </Link>
-        ) : (
-          <div className="w-10 h-10" />
-        )}
-        {nextSlug ? (
-          <Link
-            href={`/posts/${nextSlug}`}
-            className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
-            aria-label="Next post"
-          >
-            <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-          </Link>
-        ) : (
-          <div className="w-10 h-10" />
-        )}
-      </div>
     </div>
   );
 }
