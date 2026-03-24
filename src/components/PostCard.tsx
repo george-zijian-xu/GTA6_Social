@@ -24,7 +24,7 @@ export function PostCard({ post, priority = false, userId = null }: PostCardProp
             alt={post.imageAlt ?? post.caption.slice(0, 80)}
             width={post.imageWidth ?? 1200}
             height={post.imageHeight ?? 900}
-            className="aspect-[4/3] w-full object-cover"
+            className="w-full h-auto"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
             priority={priority}
           />

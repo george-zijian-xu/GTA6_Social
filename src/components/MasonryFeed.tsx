@@ -25,6 +25,12 @@ export function MasonryFeed({ initialPosts, initialCursor, userId = null }: Maso
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("feedSlugs", JSON.stringify(posts.map((p) => p.slug)));
+    } catch { /* ignore */ }
+  }, [posts]);
+
   const loadMore = useCallback(async () => {
     if (!cursor || loading) return;
     setLoading(true);

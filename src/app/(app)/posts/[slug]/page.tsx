@@ -12,6 +12,7 @@ import { CommentList } from "@/components/CommentList";
 import { ProfileHoverCard } from "@/components/ProfileHoverCard";
 import { LikeButton } from "@/components/LikeButton";
 import { ReportButton } from "@/components/ReportButton";
+import { PostNav } from "@/components/PostNav";
 import { ShareButton } from "./ShareButton";
 
 interface Props {
@@ -110,7 +111,8 @@ export default async function PostDetailPage({ params }: Props) {
       />
       <div className="flex flex-col lg:flex-row min-h-screen">
       {/* Left: Image Gallery (60%) */}
-      <div className="lg:w-[60%] flex-shrink-0 bg-black flex items-center justify-center p-4 lg:p-8">
+      <div className="lg:w-[60%] flex-shrink-0 bg-black flex items-center justify-center p-4 lg:p-8 relative">
+        <PostNav currentSlug={slug} />
         <div className="w-full max-w-2xl">
           <ImageGallery images={post.images} caption={post.caption} />
         </div>
