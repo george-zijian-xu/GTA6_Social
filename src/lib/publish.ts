@@ -22,6 +22,7 @@ function randomSuffix(): string {
 
 interface CreatePostParams {
   authorId: string;
+  title?: string;
   caption: string;
   locationId?: string;
   images: { storagePath: string; altText?: string; width?: number; height?: number }[];
@@ -35,18 +36,20 @@ interface CreatePostResult {
 
 export async function createPost({
   authorId,
+  title,
   caption,
   locationId,
   images,
   client,
 }: CreatePostParams): Promise<CreatePostResult | null> {
-  // Profanity check
-  if (containsProfanity(caption)) {
+  // Profanity check on both title and caption
+  if (containsProfanity(caption) || (title && containsProfanity(title))) {
     return null;
   }
 
-  // Generate unique slug
-  const baseSlug = slugify(caption) || "post";
+  // Slug based on title if available, otherwise caption
+  const slugSource = title?.trim() || caption;
+  const baseSlug = slugify(slugSource) || "post";
   let slug = `${baseSlug}-${randomSuffix()}`;
 
   // Check for collision (very unlikely but handle it)
@@ -65,6 +68,7 @@ export async function createPost({
     .from("posts")
     .insert({
       author_id: authorId,
+      title: title?.trim() || null,
       caption,
       slug,
       location_id: locationId ?? null,

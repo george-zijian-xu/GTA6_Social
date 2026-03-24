@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 export interface FeedPost {
   id: string;
   authorId: string;
+  title: string | null;
   caption: string;
   slug: string;
   locationId: string | null;
@@ -43,6 +44,7 @@ export function mapFeedRow(row: any): FeedPost {
   return {
     id: row.id,
     authorId: row.author_id,
+    title: row.title ?? null,
     caption: row.caption,
     slug: row.slug,
     locationId: row.location_id,

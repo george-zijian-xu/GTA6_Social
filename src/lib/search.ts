@@ -43,6 +43,7 @@ export async function search(
     return {
       id: row.id,
       authorId: row.author_id,
+      title: null,
       caption: row.caption,
       slug: row.slug,
       locationId: row.location_id,

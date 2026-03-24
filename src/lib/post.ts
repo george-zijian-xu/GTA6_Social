@@ -14,6 +14,7 @@ export interface PostImage {
 export interface PostDetail {
   id: string;
   authorId: string;
+  title: string | null;
   caption: string;
   slug: string;
   locationId: string | null;
@@ -52,7 +53,7 @@ export async function getPostBySlug(
   const { data: post, error } = await client
     .from("posts")
     .select(`
-      id, author_id, caption, slug, location_id,
+      id, author_id, title, caption, slug, location_id,
       like_count, comment_count, created_at,
       profiles!posts_author_id_fkey ( username, display_name, avatar_url ),
       locations ( name, slug, ig_x, ig_y )
@@ -77,6 +78,7 @@ export async function getPostBySlug(
   return {
     id: post.id,
     authorId: post.author_id,
+    title: post.title ?? null,
     caption: post.caption,
     slug: post.slug,
     locationId: post.location_id,

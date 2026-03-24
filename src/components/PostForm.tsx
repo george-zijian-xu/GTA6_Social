@@ -107,15 +107,12 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
   async function handleSubmit() {
     const trimmedTitle = title.trim();
     const trimmedCaption = caption.trim();
-    const fullCaption = trimmedTitle
-      ? `${trimmedTitle}\n\n${trimmedCaption}`.trim()
-      : trimmedCaption;
 
-    if (!fullCaption) {
+    if (!trimmedTitle && !trimmedCaption) {
       setError("Add a title or caption.");
       return;
     }
-    if (containsProfanity(fullCaption)) {
+    if (containsProfanity(trimmedCaption) || containsProfanity(trimmedTitle)) {
       setError("Your post contains inappropriate language. Please revise.");
       return;
     }
@@ -154,14 +151,15 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
 
       const result = await createPost({
         authorId: user.id,
-        caption: fullCaption,
+        title: trimmedTitle || undefined,
+        caption: trimmedCaption,
         locationId: locationId ?? undefined,
         images: uploadedImages,
         client: supabase,
       });
 
       if (!result) {
-        setError("Your caption contains inappropriate language. Please revise.");
+        setError("Your post contains inappropriate language. Please revise.");
         setSubmitting(false);
         return;
       }

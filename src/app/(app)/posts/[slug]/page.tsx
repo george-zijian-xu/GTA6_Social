@@ -164,9 +164,12 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* Caption */}
         <div className="px-6 py-4">
-          <p className="text-lg font-semibold leading-relaxed text-foreground">
-            {post.caption}
-          </p>
+          {post.title && (
+            <h1 className="text-xl font-bold text-foreground mb-2">{post.title}</h1>
+          )}
+          {post.caption && (
+            <p className="text-base leading-relaxed text-foreground whitespace-pre-wrap">{post.caption}</p>
+          )}
         </div>
 
         {/* Mini map module */}

@@ -41,7 +41,7 @@ export function PostCard({ post, priority = false, userId = null }: PostCardProp
       <div className="p-4 flex-1 flex flex-col">
         <Link href={`/posts/${post.slug}`}>
           <h3 className="font-bold text-sm text-foreground line-clamp-2 hover:text-primary transition-colors">
-            {post.caption || "Untitled"}
+            {(post.title ?? post.caption.split("\n")[0]) || "Untitled"}
           </h3>
         </Link>
 
