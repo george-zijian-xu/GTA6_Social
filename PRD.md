@@ -250,3 +250,103 @@ Light profanity filter applied server-side on `comment.body` and `post.caption` 
 - **Supabase scaling**: Free tier supports ~50k MAU. At projected 1M page views, upgrade to Supabase Pro (~$25/month). No architectural changes required.
 - **Vercel deployment**: User has Vercel MCP configured. Request Vercel MCP access when ready to deploy.
 - **Design reference files**: Stitch HTML exports are in `/stitch_gta6/`. Use as visual reference only — they use CDN Tailwind and placeholder images. The actual build uses a local Tailwind + Next.js setup with the unified design system described above.
+
+---
+
+## Performance Requirements
+
+### Philosophy
+Performance is a feature. A slow feed kills engagement before content has a chance to. All targets apply to **mixed device / 4G connection** (the median user) and are measured via **Lighthouse CI** and **Google Core Web Vitals** in Search Console. Any regression that pushes a score below these thresholds must be fixed before merging.
+
+---
+
+### Core Web Vitals Targets (Google "Good" thresholds)
+
+| Metric | Target | What it measures |
+|--------|--------|-----------------|
+| **LCP** (Largest Contentful Paint) | ≤ 2.5s | Time until the main image or text block is visible |
+| **INP** (Interaction to Next Paint) | ≤ 200ms | Responsiveness to every tap and click |
+| **CLS** (Cumulative Layout Shift) | ≤ 0.1 | Visual stability — no layout jumps as content loads |
+| **TTFB** (Time to First Byte) | ≤ 800ms | Server response speed (Vercel Edge + Supabase) |
+
+---
+
+### Lighthouse Score Targets
+
+| Category | Mobile | Desktop |
+|----------|--------|---------|
+| Performance | ≥ 80 | ≥ 90 |
+| Accessibility | ≥ 90 | ≥ 90 |
+| SEO | ≥ 90 | ≥ 90 |
+| Best Practices | ≥ 90 | ≥ 90 |
+
+---
+
+### Page-Level First Meaningful Paint Targets
+
+| Page | Target | Notes |
+|------|--------|-------|
+| Home feed | ≤ 1.5s | First 20 posts SSR, masonry hydrates client-side |
+| Post detail | ≤ 1.5s | SSR with image gallery and comments |
+| User profile | ≤ 1.5s | SSR with post grid |
+| Auth (login/signup) | ≤ 1.0s | Effectively static |
+| Search | ≤ 1.5s | SSR skeleton, results stream in |
+| Location Explorer | ≤ 2.0s | Leaflet adds JS overhead |
+
+---
+
+### API & Database Latency Targets (p95)
+
+| Operation | Target | Notes |
+|-----------|--------|-------|
+| `get_feed` RPC | ≤ 200ms | Ranked feed with follow boost + viewer_liked join |
+| Post detail fetch | ≤ 150ms | Post + images + author + location |
+| Like / unlike | ≤ 150ms | Masked entirely by optimistic UI |
+| Comment submit | ≤ 300ms | |
+| Follow / unfollow | ≤ 150ms | |
+| Full-text search | ≤ 300ms | Postgres tsvector on posts + profiles |
+| Image upload | ≤ 5s | Up to 8MB file to Supabase Storage |
+| Notification fetch | ≤ 200ms | Per-tab query |
+
+---
+
+### Image Loading Rules
+
+- **Format**: Next.js `<Image>` serves WebP/AVIF automatically — no manual conversion needed.
+- **Max upload size**: 8MB per image. The publish form must enforce this client-side.
+- **No layout shift**: Every `<Image>` must declare explicit `width`/`height` or use `fill` with a fixed-size container. CLS from images must be 0.
+- **Priority loading**: First 3 cards in the home feed use `priority` prop to avoid LCP penalty. All other images are lazy-loaded (Next.js default).
+- **Responsive sizes**: Feed card images use `sizes` prop matching the masonry column widths so the browser downloads the right resolution.
+
+---
+
+### Interaction Feel
+
+| Interaction | Expected feel | Implementation |
+|-------------|--------------|----------------|
+| Like / unlike | Instant | Optimistic UI — state updates before DB confirms |
+| Follow / unfollow | Instant | Optimistic UI |
+| Comment submit | < 300ms perceived | Optimistic append to list |
+| Page navigation | < 500ms perceived | Next.js link prefetch on hover |
+| Infinite scroll load | ≤ 500ms | Spinner visible; sentinel fires 200px before bottom |
+| Search input | Debounced 300ms | No request on every keystroke |
+
+---
+
+### Measurement & Monitoring
+
+| Tool | How it's used |
+|------|--------------|
+| **Lighthouse CI** | Run manually (or in CI) against home, post detail, and profile routes before each release |
+| **Google Search Console** | Monitor Core Web Vitals field data for real users post-launch; aim for ≥ 75% of URLs in "Good" |
+| **Vercel Speed Insights** | Continuous real-user monitoring on production; surfaced in Vercel dashboard |
+| **Supabase Query Advisor** | Review slow queries (> 100ms) in the Supabase dashboard after each schema or RPC change |
+
+---
+
+### Out of Scope (Performance)
+
+- **CDN for Supabase Storage**: Supabase public buckets are served via CDN by default. Custom CDN configuration is not required at MVP scale.
+- **Edge caching of feed**: The home feed is dynamic (personalised by viewer). Full-page caching is not viable. Per-query DB caching (Redis/pgBouncer) is a v2 concern.
+- **Bundle size budgeting**: No hard JS bundle size limit at MVP, but Leaflet (map) must remain lazy-loaded and not imported on non-map pages.
+- **Synthetic monitoring / alerting**: Automated performance regression alerts (e.g. Datadog) are post-launch once traffic justifies the cost.
