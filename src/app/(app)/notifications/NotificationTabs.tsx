@@ -76,11 +76,21 @@ function NotificationItem({ n }: { n: Notification }) {
         <span className="text-[11px] text-foreground-muted">{timeAgo(n.createdAt)}</span>
       </div>
 
-      {/* Post thumbnail placeholder for like/comment */}
+      {/* Post thumbnail for like/comment */}
       {n.type !== "follow" && n.postSlug && (
-        <div className="w-12 h-12 rounded-lg bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
-          <span className="material-symbols-outlined text-[16px] text-foreground-muted">image</span>
-        </div>
+        n.postImagePath ? (
+          <Image
+            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${n.postImagePath}`}
+            alt=""
+            width={48}
+            height={48}
+            className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-lg bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
+            <span className="material-symbols-outlined text-[16px] text-foreground-muted">image</span>
+          </div>
+        )
       )}
     </Link>
   );

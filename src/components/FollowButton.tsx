@@ -11,6 +11,7 @@ interface FollowButtonProps {
   currentUserId: string | null;
   initialFollowing: boolean;
   initialCount: number;
+  onToggle?: (following: boolean) => void;
 }
 
 export function FollowButton({
@@ -18,6 +19,7 @@ export function FollowButton({
   currentUserId,
   initialFollowing,
   initialCount,
+  onToggle,
 }: FollowButtonProps) {
   const [following, setFollowing] = useState(initialFollowing);
   const [count, setCount] = useState(initialCount);
@@ -33,6 +35,7 @@ export function FollowButton({
     const newFollowing = !following;
     setFollowing(newFollowing);
     setCount((c) => c + (newFollowing ? 1 : -1));
+    onToggle?.(newFollowing);
 
     startTransition(async () => {
       try {

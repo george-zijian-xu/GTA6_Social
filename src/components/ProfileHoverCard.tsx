@@ -161,6 +161,9 @@ export function ProfileHoverCard({ username, children }: ProfileHoverCardProps) 
                     currentUserId={profile.viewerId}
                     initialFollowing={profile.viewerFollows}
                     initialCount={profile.followerCount}
+                    onToggle={(following) =>
+                      setProfile((p) => p ? { ...p, viewerFollows: following } : p)
+                    }
                   />
                 </div>
               )}

@@ -10,6 +10,7 @@ export interface Notification {
   postId: string | null;
   postSlug: string | null;
   postCaption: string | null;
+  postImagePath: string | null;
   commentBody: string | null;
   readAt: string | null;
   createdAt: string;
@@ -25,7 +26,7 @@ export async function getNotifications(
     .select(`
       id, type, actor_id, post_id, comment_id, read_at, created_at,
       profiles!notifications_actor_id_fkey ( username, display_name, avatar_url ),
-      posts ( slug, caption ),
+      posts ( slug, caption, post_images ( storage_path, display_order ) ),
       comments ( body )
     `)
     .eq("target_user_id", userId)
@@ -50,6 +51,12 @@ export async function getNotifications(
       postId: row.post_id,
       postSlug: post?.slug ?? null,
       postCaption: post?.caption ?? null,
+      postImagePath: (() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const imgs: any[] = post?.post_images ?? [];
+        const first = imgs.find((i) => i.display_order === 0) ?? imgs[0];
+        return first?.storage_path ?? null;
+      })(),
       commentBody: comment?.body ?? null,
       readAt: row.read_at,
       createdAt: row.created_at,
