@@ -31,8 +31,7 @@ export const GTA_DEFAULT_CENTER = { lat: 0, lng: -2000 } as const;
 export const GTA_TRANSFORM = { a: 1 / 128, b: 128, c: -1 / 128, d: 128 } as const;
 
 const GTA_TILE_BASE_URL =
-  process.env.NEXT_PUBLIC_R2_TILES_URL ??
-  "https://pub-d0df40b4d0de47d0a484485731f09b6b.r2.dev";
+  process.env.NEXT_PUBLIC_R2_TILES_URL ?? "https://map.gtadb.org/tiles";
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
 
@@ -47,7 +46,12 @@ export function gtaTileUrl(
   tileY: number,
 ): string {
   const gtaZ = leafletZ - GTA_ZOOM_OFFSET;
-  return `${GTA_TILE_BASE_URL}/tiles/6/${tileset}/${gtaZ}/${gtaZ},${tileY},${tileX}.jpg`;
+  const base = GTA_TILE_BASE_URL;
+  // When hotlinking gtadb.org directly the path includes the version prefix
+  const isR2 = base.includes("r2.dev");
+  return isR2
+    ? `${base}/tiles/6/${tileset}/${gtaZ}/${gtaZ},${tileY},${tileX}.jpg`
+    : `${base}/6/${tileset}/${gtaZ}/${gtaZ},${tileY},${tileX}.jpg`;
 }
 
 /**

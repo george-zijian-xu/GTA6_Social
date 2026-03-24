@@ -24,10 +24,11 @@ describe("gta-crs — pure helpers", () => {
     });
 
     test("uses NEXT_PUBLIC_R2_TILES_URL as base when set", () => {
-      // URL should start with the R2 public domain
+      // URL should start with the tile base domain and contain the correct path
       const url = gtaTileUrl("yanis,10", 8, 80, 100);
       expect(url).toMatch(/^https?:\/\//);
-      expect(url).toContain("/tiles/6/yanis,10/6/6,100,80.jpg");
+      // gtaZ = 8 - 2 = 6, format: {gtaZ},{y},{x}
+      expect(url).toContain("/6/yanis,10/6/6,100,80.jpg");
     });
   });
 
