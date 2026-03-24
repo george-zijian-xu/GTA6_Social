@@ -1,26 +1,38 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { MapLocation } from "@/lib/locations";
+import {
+  createGtaCRS,
+  gameCoordsToLatLng,
+  gtaTileUrl,
+  GTA_MIN_ZOOM,
+  GTA_MAX_ZOOM,
+  GTA_DEFAULT_CENTER,
+} from "@/lib/gta-crs";
 
 interface LeafletMapProps {
   locations: MapLocation[];
   focusSlug?: string;
   mini?: boolean;
   center?: [number, number];
+  /** 'game' uses GTA VI tiles + in-game CRS. 'real' uses OSM/CartoDB + WGS84. */
+  layer?: "game" | "real";
 }
 
-// Default center for Leonida (roughly Florida/Vice City area)
-const DEFAULT_CENTER: [number, number] = [25.76, -80.19];
-const DEFAULT_ZOOM = 11;
+// Real-world defaults (Florida / Vice City area)
+const REAL_DEFAULT_CENTER: [number, number] = [25.76, -80.19];
+const REAL_DEFAULT_ZOOM = 11;
+const REAL_TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+const REAL_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
-// Community tile attribution
-const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-const TILE_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | GTA 6 Map tiles coming soon — <a href="https://map.stateofleonida.net">stateofleonida.net</a> / <a href="https://map.gtadb.org">gtadb.org</a>';
+// GTA tile config
+const GTA_TILESET = "yanis,10";
+const GTA_DEFAULT_ZOOM = 5; // Leaflet zoom 5 = gtadb zoom 3, good overview
 
 function pinSize(postCount: number): number {
   if (postCount >= 50) return 24;
@@ -36,7 +48,13 @@ function pinColor(postCount: number): string {
   return "#6b7280";
 }
 
-export function LeafletMap({ locations, focusSlug, mini = false, center }: LeafletMapProps) {
+export function LeafletMap({
+  locations,
+  focusSlug,
+  mini = false,
+  center,
+  layer = "real",
+}: LeafletMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const router = useRouter();
@@ -44,40 +62,82 @@ export function LeafletMap({ locations, focusSlug, mini = false, center }: Leafl
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    // Find focus location
-    const focusLoc = focusSlug
-      ? locations.find((l) => l.slug === focusSlug)
-      : null;
+    const isGame = layer === "game";
+    const focusLoc = focusSlug ? locations.find((l) => l.slug === focusSlug) : null;
 
-    const mapCenter = center
-      ? center
-      : focusLoc?.igX && focusLoc?.igY
-        ? [focusLoc.igY, focusLoc.igX] as [number, number]
-        : DEFAULT_CENTER;
+    // ── CRS + center ──
+    let mapOptions: L.MapOptions = { zoomControl: !mini, attributionControl: !mini };
 
-    const map = L.map(mapRef.current, {
-      center: mapCenter,
-      zoom: focusLoc ? 14 : DEFAULT_ZOOM,
-      zoomControl: !mini,
-      attributionControl: !mini,
-    });
+    if (isGame) {
+      const GtaCRS = createGtaCRS(L);
+      mapOptions.crs = GtaCRS;
+      mapOptions.minZoom = GTA_MIN_ZOOM;
+      mapOptions.maxZoom = GTA_MAX_ZOOM;
 
-    L.tileLayer(TILE_URL, {
-      attribution: TILE_ATTRIBUTION,
-      maxZoom: 18,
-    }).addTo(map);
+      const focusLL =
+        focusLoc?.igX != null && focusLoc?.igY != null
+          ? gameCoordsToLatLng(focusLoc.igX, focusLoc.igY)
+          : GTA_DEFAULT_CENTER;
+      mapOptions.center = [focusLL.lat, focusLL.lng];
+      mapOptions.zoom = focusLoc ? GTA_MAX_ZOOM - 2 : GTA_DEFAULT_ZOOM;
+    } else {
+      const realCenter: [number, number] = center
+        ?? (focusLoc?.igX != null && focusLoc?.igY != null
+          ? [focusLoc.igY, focusLoc.igX]
+          : REAL_DEFAULT_CENTER);
+      mapOptions.center = realCenter;
+      mapOptions.zoom = focusLoc ? 14 : REAL_DEFAULT_ZOOM;
+    }
 
-    // Add location pins
+    const map = L.map(mapRef.current, mapOptions);
+
+    // ── Tile layer ──
+    if (isGame) {
+      L.tileLayer("", {
+        minZoom: GTA_MIN_ZOOM,
+        maxZoom: GTA_MAX_ZOOM,
+        tileSize: 256,
+        attribution:
+          'GTA VI map tiles — <a href="https://map.gtadb.org">gtadb.org</a>',
+        // Custom getTileUrl via class extension
+      } as L.TileLayerOptions);
+
+      // Use a custom TileLayer that builds the gtadb URL
+      const GtaTileLayer = L.TileLayer.extend({
+        getTileUrl(coords: L.Coords) {
+          return gtaTileUrl(GTA_TILESET, coords.z, coords.x, coords.y);
+        },
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      new (GtaTileLayer as any)("", {
+        minZoom: GTA_MIN_ZOOM,
+        maxZoom: GTA_MAX_ZOOM,
+        attribution: 'GTA VI map tiles — <a href="https://map.gtadb.org">gtadb.org community</a>',
+      }).addTo(map);
+    } else {
+      L.tileLayer(REAL_TILE_URL, {
+        attribution: REAL_ATTRIBUTION,
+        maxZoom: 18,
+      }).addTo(map);
+    }
+
+    // ── Pins ──
     let maxPostCount = 0;
     let maxMarker: L.CircleMarker | null = null;
 
     for (const loc of locations) {
-      if (!loc.igX || !loc.igY) continue;
+      // Game layer uses igX/igY; real layer uses igX/igY as lat/lng placeholder
+      // (real rl_lat/rl_lng support comes in #35)
+      if (loc.igX == null || loc.igY == null) continue;
+
+      const latlng: [number, number] = isGame
+        ? [loc.igY, loc.igX]
+        : [loc.igY, loc.igX]; // both same for now; rl coords added in #35
 
       const size = pinSize(loc.postCount);
       const color = pinColor(loc.postCount);
 
-      const marker = L.circleMarker([loc.igY, loc.igX], {
+      const marker = L.circleMarker(latlng, {
         radius: size / 2,
         fillColor: color,
         fillOpacity: 0.8,
@@ -117,13 +177,11 @@ export function LeafletMap({ locations, focusSlug, mini = false, center }: Leafl
         weight: 1,
         className: "animate-ping",
       }).addTo(map);
-      // Remove after animation
       setTimeout(() => map.removeLayer(ping), 3000);
     }
 
     mapInstanceRef.current = map;
 
-    // Global handler for popup button
     if (!mini) {
       (window as unknown as Record<string, unknown>).__filterFeed = (slug: string) => {
         router.push(`/?location=${slug}`);

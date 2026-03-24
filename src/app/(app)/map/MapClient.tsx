@@ -18,5 +18,5 @@ interface MapClientProps {
 }
 
 export function MapClient({ locations, focusSlug }: MapClientProps) {
-  return <LeafletMap locations={locations} focusSlug={focusSlug} />;
+  return <LeafletMap locations={locations} focusSlug={focusSlug} layer="game" />;
 }
