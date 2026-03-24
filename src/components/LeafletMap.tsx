@@ -19,9 +19,9 @@ interface LeafletMapProps {
   focusSlug?: string;
   mini?: boolean;
   center?: [number, number];
-  /** 'game' uses GTA VI tiles + in-game CRS. 'real' uses CartoDB + WGS84. */
   layer?: "game" | "real";
   isDark?: boolean;
+  onPinClick?: (location: MapLocation) => void;
 }
 
 // Real-world defaults (Florida / Vice City area)
@@ -57,6 +57,7 @@ export function LeafletMap({
   center,
   layer = "real",
   isDark = false,
+  onPinClick,
 }: LeafletMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -157,18 +158,22 @@ export function LeafletMap({
       }
 
       if (!mini) {
-        marker.bindPopup(`
-          <div style="min-width: 180px; font-family: Inter, sans-serif;">
-            <h3 style="font-weight: 700; font-size: 14px; margin: 0 0 4px;">${loc.name}</h3>
-            <p style="color: #6b7280; font-size: 12px; margin: 0 0 8px;">${loc.postCount} posts</p>
-            <button
-              onclick="window.__filterFeed('${loc.slug}')"
-              style="width: 100%; padding: 6px 12px; background: #ff2442; color: white; border: none; border-radius: 9999px; font-size: 12px; font-weight: 700; cursor: pointer;"
-            >
-              Filter Home Feed
-            </button>
-          </div>
-        `);
+        if (onPinClick) {
+          marker.on("click", () => onPinClick(loc));
+        } else {
+          marker.bindPopup(`
+            <div style="min-width: 180px; font-family: Inter, sans-serif;">
+              <h3 style="font-weight: 700; font-size: 14px; margin: 0 0 4px;">${loc.name}</h3>
+              <p style="color: #6b7280; font-size: 12px; margin: 0 0 8px;">${loc.postCount} posts</p>
+              <button
+                onclick="window.__filterFeed('${loc.slug}')"
+                style="width: 100%; padding: 6px 12px; background: #ff2442; color: white; border: none; border-radius: 9999px; font-size: 12px; font-weight: 700; cursor: pointer;"
+              >
+                Filter Home Feed
+              </button>
+            </div>
+          `);
+        }
       }
     }
 

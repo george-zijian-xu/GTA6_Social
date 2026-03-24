@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import type { MapLocation } from "@/lib/locations";
+import { MapBottomSheet } from "@/components/MapBottomSheet";
 
 const LeafletMap = dynamic(() => import("@/components/LeafletMap").then((m) => m.LeafletMap), {
   ssr: false,
@@ -21,6 +22,7 @@ interface MapClientProps {
 export function MapClient({ locations, focusSlug }: MapClientProps) {
   const [layer, setLayer] = useState<"game" | "real">("game");
   const [isDark, setIsDark] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(null);
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
@@ -31,46 +33,53 @@ export function MapClient({ locations, focusSlug }: MapClientProps) {
     return () => observer.disconnect();
   }, []);
 
+  // Auto-open sheet for focused location
+  useEffect(() => {
+    if (focusSlug) {
+      const loc = locations.find((l) => l.slug === focusSlug);
+      if (loc) setSelectedLocation(loc);
+    }
+  }, [focusSlug]);
+
   return (
-    <div className="relative w-full h-full">
-      {/* Map — key forces remount on layer change (CRS cannot be swapped in place) */}
+    <div className="relative w-full h-full overflow-hidden">
+      {/* Map */}
       <LeafletMap
         key={layer}
         locations={locations}
         focusSlug={focusSlug}
         layer={layer}
         isDark={isDark}
+        onPinClick={setSelectedLocation}
       />
 
-      {/* Toggle button */}
+      {/* Layer toggle */}
       <div className="absolute top-4 right-4 z-[1000] flex rounded-xl overflow-hidden shadow-lg border border-foreground/10 bg-surface-card dark:bg-[#1e1e1e]">
         <button
           onClick={() => setLayer("game")}
           className={`px-3 py-2 text-xs font-bold transition-colors ${
-            layer === "game"
-              ? "bg-primary text-white"
-              : "text-foreground-muted hover:text-foreground"
+            layer === "game" ? "bg-primary text-white" : "text-foreground-muted hover:text-foreground"
           }`}
         >
-          <span className="material-symbols-outlined text-[16px] align-middle mr-1">
-            sports_esports
-          </span>
+          <span className="material-symbols-outlined text-[16px] align-middle mr-1">sports_esports</span>
           Leonida
         </button>
         <button
           onClick={() => setLayer("real")}
           className={`px-3 py-2 text-xs font-bold transition-colors ${
-            layer === "real"
-              ? "bg-primary text-white"
-              : "text-foreground-muted hover:text-foreground"
+            layer === "real" ? "bg-primary text-white" : "text-foreground-muted hover:text-foreground"
           }`}
         >
-          <span className="material-symbols-outlined text-[16px] align-middle mr-1">
-            public
-          </span>
+          <span className="material-symbols-outlined text-[16px] align-middle mr-1">public</span>
           Florida
         </button>
       </div>
+
+      {/* Bottom sheet */}
+      <MapBottomSheet
+        location={selectedLocation}
+        onClose={() => setSelectedLocation(null)}
+      />
     </div>
   );
 }
