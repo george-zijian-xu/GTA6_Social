@@ -31,6 +31,8 @@ export interface PostDetail {
   locationSlug: string | null;
   locationIgX: number | null;
   locationIgY: number | null;
+  locationRlLat: number | null;
+  locationRlLng: number | null;
   images: PostImage[];
 }
 
@@ -59,7 +61,7 @@ export async function getPostBySlug(
       id, author_id, title, caption, slug, post_type, location_id,
       like_count, comment_count, created_at,
       profiles!posts_author_id_fkey ( username, display_name, avatar_url ),
-      locations ( name, slug, ig_x, ig_y )
+      locations ( name, slug, ig_x, ig_y, rl_lat, rl_lng )
     `)
     .eq("slug", slug)
     .single();
@@ -96,6 +98,8 @@ export async function getPostBySlug(
     locationSlug: location?.slug ?? null,
     locationIgX: location?.ig_x ?? null,
     locationIgY: location?.ig_y ?? null,
+    locationRlLat: location?.rl_lat ?? null,
+    locationRlLng: location?.rl_lng ?? null,
     images: (images ?? []).map((img) => ({
       id: img.id,
       storagePath: img.storage_path,

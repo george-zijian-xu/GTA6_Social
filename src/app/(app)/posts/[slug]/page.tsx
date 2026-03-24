@@ -187,6 +187,9 @@ export default async function PostDetailPage({ params }: Props) {
             locationSlug={post.locationSlug}
             igX={post.locationIgX}
             igY={post.locationIgY}
+            rlLat={post.locationRlLat}
+            rlLng={post.locationRlLng}
+            postType={post.postType}
           />
         </div>
 
