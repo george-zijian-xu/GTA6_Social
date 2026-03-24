@@ -6,6 +6,15 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { createPost } from "@/lib/publish";
 import { containsProfanity } from "@/lib/profanity";
+import type { PostType } from "@/lib/post";
+
+const POST_TYPES: { value: PostType; label: string; sub: string }[] = [
+  { value: "GG", label: "G / G", sub: "In-game character · game location" },
+  { value: "GR", label: "G / R", sub: "In-game character · real Florida" },
+  { value: "RG", label: "R / G", sub: "Real person · game location" },
+  { value: "RR", label: "R / R", sub: "Real person · real Florida" },
+  { value: "NON_CANON", label: "Non-canon", sub: "Meme, fan art, or out-of-character" },
+];
 
 interface ImagePreview {
   file: File;
@@ -22,6 +31,7 @@ interface PostFormProps {
 export function PostForm({ onClose, compact = false }: PostFormProps) {
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
+  const [postType, setPostType] = useState<PostType | null>(null);
   const [images, setImages] = useState<ImagePreview[]>([]);
   const [locationId, setLocationId] = useState<string | null>(null);
   const [locationSearch, setLocationSearch] = useState("");
@@ -112,6 +122,10 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
       setError("Add a title or caption.");
       return;
     }
+    if (!postType) {
+      setError("Choose a post type.");
+      return;
+    }
     if (containsProfanity(trimmedCaption) || containsProfanity(trimmedTitle)) {
       setError("Your post contains inappropriate language. Please revise.");
       return;
@@ -153,6 +167,7 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
         authorId: user.id,
         title: trimmedTitle || undefined,
         caption: trimmedCaption,
+        postType: postType ?? "RR",
         locationId: locationId ?? undefined,
         images: uploadedImages,
         client: supabase,
@@ -267,6 +282,32 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
           </div>
         </div>
 
+        {/* Post type */}
+        <div className="space-y-3 pt-4 border-t border-foreground/5">
+          <label className="block text-[0.65rem] font-bold text-foreground-muted uppercase tracking-widest">
+            Post type <span className="text-primary">*</span>
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {POST_TYPES.map(({ value, label, sub }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setPostType(value)}
+                className={`text-left px-3 py-2.5 rounded-xl border transition-all ${
+                  postType === value
+                    ? "border-primary bg-primary/5 text-foreground"
+                    : "border-foreground/8 hover:border-foreground/20 text-foreground-muted"
+                }`}
+              >
+                <span className={`text-xs font-bold block ${postType === value ? "text-primary" : ""}`}>
+                  {label}
+                </span>
+                <span className="text-[10px] leading-tight mt-0.5 block">{sub}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Location */}
         <div className="space-y-3 pt-4 border-t border-foreground/5">
           <div className="relative">
@@ -334,7 +375,7 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
         )}
         <button
           onClick={handleSubmit}
-          disabled={submitting || !caption.trim()}
+          disabled={submitting || (!caption.trim() && !title.trim()) || !postType}
           className="w-full bg-primary text-white rounded-2xl py-4 text-sm font-bold tracking-wide shadow-lg shadow-primary/30 hover:bg-primary-hover transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
         >
           {submitting ? "Publishing..." : "Publish Now"}

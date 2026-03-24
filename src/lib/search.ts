@@ -26,7 +26,7 @@ export async function search(
   const { data: postsRaw } = await client
     .from("posts")
     .select(`
-      id, author_id, caption, slug, location_id,
+      id, author_id, caption, slug, post_type, location_id,
       like_count, comment_count, created_at,
       profiles!posts_author_id_fkey ( username, display_name, avatar_url ),
       post_images ( storage_path, alt_text, width, height, display_order )
@@ -46,6 +46,7 @@ export async function search(
       title: null,
       caption: row.caption,
       slug: row.slug,
+      postType: (row.post_type ?? "RR") as FeedPost["postType"],
       locationId: row.location_id,
       likeCount: row.like_count,
       commentCount: row.comment_count,

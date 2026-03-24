@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { containsProfanity } from "./profanity";
+import type { PostType } from "./post";
 
 // --- Slug generation ---
 
@@ -24,6 +25,7 @@ interface CreatePostParams {
   authorId: string;
   title?: string;
   caption: string;
+  postType?: PostType;
   locationId?: string;
   images: { storagePath: string; altText?: string; width?: number; height?: number }[];
   client: SupabaseClient;
@@ -38,6 +40,7 @@ export async function createPost({
   authorId,
   title,
   caption,
+  postType = "RR",
   locationId,
   images,
   client,
@@ -71,6 +74,7 @@ export async function createPost({
       title: title?.trim() || null,
       caption,
       slug,
+      post_type: postType,
       location_id: locationId ?? null,
     })
     .select("id, slug")

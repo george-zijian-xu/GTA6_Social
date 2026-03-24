@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 // --- Types ---
 
+export type PostType = "GG" | "GR" | "RG" | "RR" | "NON_CANON";
+
 export interface PostImage {
   id: string;
   storagePath: string;
@@ -17,6 +19,7 @@ export interface PostDetail {
   title: string | null;
   caption: string;
   slug: string;
+  postType: PostType;
   locationId: string | null;
   likeCount: number;
   commentCount: number;
@@ -53,7 +56,7 @@ export async function getPostBySlug(
   const { data: post, error } = await client
     .from("posts")
     .select(`
-      id, author_id, title, caption, slug, location_id,
+      id, author_id, title, caption, slug, post_type, location_id,
       like_count, comment_count, created_at,
       profiles!posts_author_id_fkey ( username, display_name, avatar_url ),
       locations ( name, slug, ig_x, ig_y )
@@ -81,6 +84,7 @@ export async function getPostBySlug(
     title: post.title ?? null,
     caption: post.caption,
     slug: post.slug,
+    postType: (post.post_type ?? "RR") as PostType,
     locationId: post.location_id,
     likeCount: post.like_count,
     commentCount: post.comment_count,

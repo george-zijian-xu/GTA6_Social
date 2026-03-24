@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import type { PostType } from "@/lib/post";
 
 // --- Types ---
 
@@ -8,6 +9,7 @@ export interface FeedPost {
   title: string | null;
   caption: string;
   slug: string;
+  postType: PostType;
   locationId: string | null;
   likeCount: number;
   commentCount: number;
@@ -47,6 +49,7 @@ export function mapFeedRow(row: any): FeedPost {
     title: row.title ?? null,
     caption: row.caption,
     slug: row.slug,
+    postType: (row.post_type ?? "RR") as PostType,
     locationId: row.location_id,
     likeCount: row.like_count,
     commentCount: row.comment_count,
