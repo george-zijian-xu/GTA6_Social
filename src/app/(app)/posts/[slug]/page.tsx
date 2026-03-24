@@ -70,8 +70,13 @@ export default async function PostDetailPage({ params }: Props) {
   if (!post) notFound();
 
   const { data: { user } } = await supabase.auth.getUser();
-  const liked = user ? await hasUserLikedPost(post.id, user.id, supabase) : false;
-  const comments = await getComments(post.id, "recent", supabase);
+  const [liked, comments, userProfile] = await Promise.all([
+    user ? hasUserLikedPost(post.id, user.id, supabase) : Promise.resolve(false),
+    getComments(post.id, "recent", supabase),
+    user
+      ? supabase.from("profiles").select("avatar_url").eq("id", user.id).single().then(r => r.data)
+      : Promise.resolve(null),
+  ]);
 
   const canonicalUrl = `https://grandtheftauto6.com/posts/${slug}`;
   const imageUrl = post.images[0]
@@ -184,7 +189,7 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* Comments section */}
         <div className="flex-1 px-6 pb-4 min-h-0 flex flex-col">
-          <CommentList initialComments={comments} postId={post.id} userId={user?.id ?? null} />
+          <CommentList initialComments={comments} postId={post.id} userId={user?.id ?? null} userAvatarUrl={userProfile?.avatar_url ?? null} />
         </div>
 
         {/* Action row */}

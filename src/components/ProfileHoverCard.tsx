@@ -5,13 +5,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { formatCount } from "@/lib/format";
+import { isFollowing as checkIsFollowing } from "@/lib/follows";
+import { FollowButton } from "@/components/FollowButton";
 
 interface ProfileData {
+  id: string;
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
   followerCount: number;
   recentImages: string[];
+  viewerId: string | null;
+  viewerFollows: boolean;
 }
 
 interface ProfileHoverCardProps {
@@ -33,30 +38,38 @@ export function ProfileHoverCard({ username, children }: ProfileHoverCardProps) 
 
     const supabase = createClient();
 
-    // Fetch profile + follower count + recent post images
-    const { data: profileRow } = await supabase
-      .from("profiles")
-      .select("id, username, display_name, avatar_url")
-      .eq("username", username)
-      .single();
+    // Fetch current viewer + profile in parallel
+    const [{ data: { user } }, { data: profileRow }] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase
+        .from("profiles")
+        .select("id, username, display_name, avatar_url")
+        .eq("username", username)
+        .single(),
+    ]);
 
     if (!profileRow) {
       setLoading(false);
       return;
     }
 
-    const { count: followerCount } = await supabase
-      .from("follows")
-      .select("*", { count: "exact", head: true })
-      .eq("following_id", profileRow.id);
+    const viewerId = user?.id ?? null;
 
-    // Get 3 recent post images
-    const { data: recentPosts } = await supabase
-      .from("posts")
-      .select("id, post_images ( storage_path )")
-      .eq("author_id", profileRow.id)
-      .order("created_at", { ascending: false })
-      .limit(3);
+    const [{ count: followerCount }, viewerFollows, { data: recentPosts }] = await Promise.all([
+      supabase
+        .from("follows")
+        .select("*", { count: "exact", head: true })
+        .eq("following_id", profileRow.id),
+      viewerId && viewerId !== profileRow.id
+        ? checkIsFollowing(viewerId, profileRow.id, supabase)
+        : Promise.resolve(false),
+      supabase
+        .from("posts")
+        .select("id, post_images ( storage_path )")
+        .eq("author_id", profileRow.id)
+        .order("created_at", { ascending: false })
+        .limit(3),
+    ]);
 
     const recentImages: string[] = [];
     if (recentPosts) {
@@ -70,11 +83,14 @@ export function ProfileHoverCard({ username, children }: ProfileHoverCardProps) 
     }
 
     setProfile({
+      id: profileRow.id,
       username: profileRow.username,
       displayName: profileRow.display_name,
       avatarUrl: profileRow.avatar_url,
       followerCount: followerCount ?? 0,
       recentImages,
+      viewerId,
+      viewerFollows: viewerFollows as boolean,
     });
     setLoading(false);
   }, [username]);
@@ -137,10 +153,17 @@ export function ProfileHoverCard({ username, children }: ProfileHoverCardProps) 
                 </div>
               </div>
 
-              {/* Follow button */}
-              <button className="w-full py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold uppercase tracking-wide transition-colors mb-3">
-                Follow
-              </button>
+              {/* Follow button — hidden on own profile */}
+              {profile.viewerId !== profile.id && (
+                <div className="mb-3">
+                  <FollowButton
+                    targetUserId={profile.id}
+                    currentUserId={profile.viewerId}
+                    initialFollowing={profile.viewerFollows}
+                    initialCount={profile.followerCount}
+                  />
+                </div>
+              )}
 
               {/* Recent images grid */}
               {profile.recentImages.length > 0 && (

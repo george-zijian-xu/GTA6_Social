@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import type { Notification } from "@/lib/notifications";
 
 interface NotificationTabsProps {
@@ -50,11 +51,21 @@ function NotificationItem({ n }: { n: Notification }) {
       }`}
     >
       {/* Avatar */}
-      <div className="w-10 h-10 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
-        <span className="material-symbols-outlined text-[18px] text-foreground-muted">
-          person
-        </span>
-      </div>
+      {n.actorAvatarUrl ? (
+        <Image
+          src={n.actorAvatarUrl}
+          alt={n.actorDisplayName ?? n.actorUsername}
+          width={40}
+          height={40}
+          className="rounded-full w-10 h-10 object-cover flex-shrink-0"
+        />
+      ) : (
+        <div className="w-10 h-10 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
+          <span className="material-symbols-outlined text-[18px] text-foreground-muted">
+            person
+          </span>
+        </div>
+      )}
 
       {/* Content */}
       <div className="flex-1 min-w-0">

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { Comment } from "@/lib/post";
 import { LikeButton } from "./LikeButton";
@@ -13,6 +14,7 @@ interface CommentListProps {
   initialComments: Comment[];
   postId: string;
   userId: string | null;
+  userAvatarUrl?: string | null;
 }
 
 function timeAgo(dateStr: string): string {
@@ -27,14 +29,14 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(days / 30)}mo`;
 }
 
-export function CommentList({ initialComments, postId, userId }: CommentListProps) {
+export function CommentList({ initialComments, postId, userId, userAvatarUrl }: CommentListProps) {
   const [sort, setSort] = useState<"recent" | "top">("recent");
   const [comments, setComments] = useState(initialComments);
   const [body, setBody] = useState("");
   const [replyTo, setReplyTo] = useState<{ id: string; username: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
 
   async function handleSortChange(newSort: "recent" | "top") {
@@ -165,11 +167,19 @@ export function CommentList({ initialComments, postId, userId }: CommentListProp
     return (
       <div key={comment.id} className={`flex gap-3 ${indented ? "ml-10" : ""}`}>
         <Link href={`/users/${comment.username}`} className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center">
-            <span className="material-symbols-outlined text-[14px] text-foreground-muted">
-              person
-            </span>
-          </div>
+          {comment.avatarUrl ? (
+            <Image
+              src={comment.avatarUrl}
+              alt={comment.displayName ?? comment.username}
+              width={32}
+              height={32}
+              className="rounded-full w-8 h-8 object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center">
+              <span className="material-symbols-outlined text-[14px] text-foreground-muted">person</span>
+            </div>
+          )}
         </Link>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -265,27 +275,41 @@ export function CommentList({ initialComments, postId, userId }: CommentListProp
           </div>
         )}
         {userId ? (
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-[14px] text-foreground-muted">
-                person
-              </span>
+          <div className="flex items-start gap-3">
+            {/* Current user avatar */}
+            <div className="flex-shrink-0 mt-1">
+              {userAvatarUrl ? (
+                <Image src={userAvatarUrl} alt="" width={32} height={32} className="rounded-full w-8 h-8 object-cover" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[14px] text-foreground-muted">person</span>
+                </div>
+              )}
             </div>
             <div className="flex-1 relative">
-              <input
+              <textarea
                 ref={inputRef}
-                type="text"
+                rows={1}
                 value={body}
-                onChange={(e) => setBody(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                placeholder="Add a comment..."
+                onChange={(e) => {
+                  setBody(e.target.value);
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit();
+                  }
+                }}
+                placeholder="Add a comment… (Enter to send, Shift+Enter for new line)"
                 disabled={submitting}
-                className="w-full rounded-xl bg-surface-secondary dark:bg-[#2a2a2a] px-4 py-2.5 pr-16 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+                className="w-full rounded-xl bg-surface-secondary dark:bg-[#2a2a2a] px-4 py-2.5 pr-16 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 resize-none overflow-hidden"
               />
               <button
                 onClick={handleSubmit}
                 disabled={submitting || !body.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-lg bg-primary text-white text-xs font-bold disabled:opacity-50 hover:bg-primary-hover transition-colors"
+                className="absolute right-2 top-2 px-3 py-1 rounded-lg bg-primary text-white text-xs font-bold disabled:opacity-50 hover:bg-primary-hover transition-colors"
               >
                 POST
               </button>
