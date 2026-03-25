@@ -97,16 +97,7 @@ export function LeafletMap({
 
     // ── Tile layer ──
     if (isGame) {
-      L.tileLayer("", {
-        minZoom: GTA_MIN_ZOOM,
-        maxZoom: GTA_MAX_ZOOM,
-        tileSize: 256,
-        attribution:
-          'GTA VI map tiles — <a href="https://map.gtadb.org">gtadb.org</a>',
-        // Custom getTileUrl via class extension
-      } as L.TileLayerOptions);
-
-      // Use a custom TileLayer that builds the gtadb URL
+      // Use a custom TileLayer that builds the R2 tile URL
       const GtaTileLayer = L.TileLayer.extend({
         getTileUrl(coords: L.Coords) {
           return gtaTileUrl(GTA_TILESET, coords.z, coords.x, coords.y);
@@ -116,7 +107,7 @@ export function LeafletMap({
       new (GtaTileLayer as any)("", {
         minZoom: GTA_MIN_ZOOM,
         maxZoom: GTA_MAX_ZOOM,
-        attribution: 'GTA VI map tiles — <a href="https://map.gtadb.org">gtadb.org community</a>',
+        attribution: 'GTA VI map tiles — community data via <a href="https://map.gtadb.org">gtadb.org</a>',
       }).addTo(map);
     } else {
       L.tileLayer(isDark ? CARTO_DARK : CARTO_LIGHT, {

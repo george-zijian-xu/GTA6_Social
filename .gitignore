@@ -23,3 +23,6 @@ pnpm-debug.log*
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
+
+# local location data (downloaded from gtadb.org GitHub, not committed)
+locations/
