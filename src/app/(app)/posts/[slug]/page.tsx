@@ -195,30 +195,35 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* Comments section */}
         <div className="flex-1 px-6 pb-4 min-h-0 flex flex-col">
-          <CommentList initialComments={comments} postId={post.id} userId={user?.id ?? null} userAvatarUrl={userProfile?.avatar_url ?? null} />
-        </div>
-
-        {/* Action row */}
-        <div className="px-6 py-3 border-t border-foreground/5 flex items-center gap-6">
-          <LikeButton
-            targetId={post.id}
-            targetType="post"
-            initialCount={post.likeCount}
-            initialLiked={liked}
+          <CommentList
+            initialComments={comments}
+            postId={post.id}
             userId={user?.id ?? null}
+            userAvatarUrl={userProfile?.avatar_url ?? null}
+            actionButtons={
+              <>
+                <LikeButton
+                  targetId={post.id}
+                  targetType="post"
+                  initialCount={post.likeCount}
+                  initialLiked={liked}
+                  userId={user?.id ?? null}
+                />
+                <div className="flex items-center gap-1.5 text-foreground-muted">
+                  <span className="material-symbols-outlined text-[20px]">
+                    chat_bubble_outline
+                  </span>
+                  <span className="text-sm font-medium">
+                    {formatCount(post.commentCount)}
+                  </span>
+                </div>
+                <ShareButton />
+                {user && user.id !== post.authorId && (
+                  <ReportButton postId={post.id} />
+                )}
+              </>
+            }
           />
-          <div className="flex items-center gap-1.5 text-foreground-muted">
-            <span className="material-symbols-outlined text-[20px]">
-              chat_bubble_outline
-            </span>
-            <span className="text-sm font-medium">
-              {formatCount(post.commentCount)}
-            </span>
-          </div>
-          <ShareButton />
-          {user && user.id !== post.authorId && (
-            <ReportButton postId={post.id} />
-          )}
         </div>
       </div>
     </div>

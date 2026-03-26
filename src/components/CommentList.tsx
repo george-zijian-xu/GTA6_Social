@@ -15,6 +15,7 @@ interface CommentListProps {
   postId: string;
   userId: string | null;
   userAvatarUrl?: string | null;
+  actionButtons?: React.ReactNode;
 }
 
 function timeAgo(dateStr: string): string {
@@ -29,7 +30,7 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(days / 30)}mo`;
 }
 
-export function CommentList({ initialComments, postId, userId, userAvatarUrl }: CommentListProps) {
+export function CommentList({ initialComments, postId, userId, userAvatarUrl, actionButtons }: CommentListProps) {
   const [sort, setSort] = useState<"recent" | "top">("recent");
   const [comments, setComments] = useState(initialComments);
   const [body, setBody] = useState("");
@@ -259,7 +260,7 @@ export function CommentList({ initialComments, postId, userId, userAvatarUrl }: 
         )}
       </div>
 
-      {/* Comment input */}
+      {/* Comment input with action buttons */}
       <div className="pt-4 border-t border-foreground/5 mt-4">
         {error && (
           <div className="mb-2 p-2 rounded-lg bg-primary/10 text-primary text-xs">
@@ -275,9 +276,9 @@ export function CommentList({ initialComments, postId, userId, userAvatarUrl }: 
           </div>
         )}
         {userId ? (
-          <div className="flex items-start gap-3">
+          <div className="flex items-center gap-3">
             {/* Current user avatar */}
-            <div className="flex-shrink-0 mt-1">
+            <div className="flex-shrink-0">
               {userAvatarUrl ? (
                 <Image src={userAvatarUrl} alt="" width={32} height={32} className="rounded-full w-8 h-8 object-cover" />
               ) : (
@@ -302,7 +303,7 @@ export function CommentList({ initialComments, postId, userId, userAvatarUrl }: 
                     handleSubmit();
                   }
                 }}
-                placeholder="Add a comment… (Enter to send, Shift+Enter for new line)"
+                placeholder="Add a comment…"
                 disabled={submitting}
                 className="w-full rounded-xl bg-surface-secondary dark:bg-[#2a2a2a] px-4 py-2.5 pr-16 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 resize-none overflow-hidden"
               />
@@ -314,6 +315,11 @@ export function CommentList({ initialComments, postId, userId, userAvatarUrl }: 
                 POST
               </button>
             </div>
+            {actionButtons && (
+              <div className="flex items-center gap-4 shrink-0">
+                {actionButtons}
+              </div>
+            )}
           </div>
         ) : (
           <Link
