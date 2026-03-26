@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { MapLocation } from "@/lib/locations";
 import { MapBottomSheet } from "@/components/MapBottomSheet";
@@ -20,9 +21,21 @@ interface MapClientProps {
 }
 
 export function MapClient({ locations, focusSlug }: MapClientProps) {
-  const [layer, setLayer] = useState<"game" | "real">("game");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const layerParam = searchParams.get("layer");
+  const initialLayer = layerParam === "real" ? "real" : "game";
+
+  const [layer, setLayer] = useState<"game" | "real">(initialLayer);
   const [isDark, setIsDark] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(null);
+
+  const handleLayerChange = (newLayer: "game" | "real") => {
+    setLayer(newLayer);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("layer", newLayer);
+    router.replace(`/map?${params.toString()}`, { scroll: false });
+  };
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
@@ -56,7 +69,7 @@ export function MapClient({ locations, focusSlug }: MapClientProps) {
       {/* Layer toggle */}
       <div className="absolute top-4 right-4 z-[1000] flex rounded-xl overflow-hidden shadow-lg border border-foreground/10 bg-surface-card dark:bg-[#1e1e1e]">
         <button
-          onClick={() => setLayer("game")}
+          onClick={() => handleLayerChange("game")}
           className={`px-3 py-2 text-xs font-bold transition-colors ${
             layer === "game" ? "bg-primary text-white" : "text-foreground-muted hover:text-foreground"
           }`}
@@ -65,7 +78,7 @@ export function MapClient({ locations, focusSlug }: MapClientProps) {
           Leonida
         </button>
         <button
-          onClick={() => setLayer("real")}
+          onClick={() => handleLayerChange("real")}
           className={`px-3 py-2 text-xs font-bold transition-colors ${
             layer === "real" ? "bg-primary text-white" : "text-foreground-muted hover:text-foreground"
           }`}

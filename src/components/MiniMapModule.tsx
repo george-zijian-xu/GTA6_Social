@@ -69,7 +69,7 @@ export function MiniMapModule({
 
   return (
     <div
-      onClick={() => router.push(`/map?focus=${locationSlug}`)}
+      onClick={() => router.push(`/map?focus=${locationSlug}&layer=${layer}`)}
       className="relative rounded-2xl overflow-hidden h-24 cursor-pointer group"
     >
       {/* Map or gradient placeholder */}
