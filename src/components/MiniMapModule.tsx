@@ -83,7 +83,7 @@ export function MiniMapModule({
           />
         </div>
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 opacity-50 group-hover:opacity-30 transition-opacity" />
+        <div className="absolute inset-0 bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 opacity-50 group-hover:opacity-30 transition-opacity" />
       )}
 
       {/* Location name */}

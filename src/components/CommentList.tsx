@@ -167,7 +167,7 @@ export function CommentList({ initialComments, postId, userId, userAvatarUrl, ac
   function renderComment(comment: Comment, indented: boolean) {
     return (
       <div key={comment.id} className={`flex gap-3 ${indented ? "ml-10" : ""}`}>
-        <Link href={`/users/${comment.username}`} className="flex-shrink-0">
+        <Link href={`/users/${comment.username}`} className="shrink-0">
           {comment.avatarUrl ? (
             <Image
               src={comment.avatarUrl}
@@ -278,7 +278,7 @@ export function CommentList({ initialComments, postId, userId, userAvatarUrl, ac
         {userId ? (
           <div className="flex items-center gap-3">
             {/* Current user avatar */}
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               {userAvatarUrl ? (
                 <Image src={userAvatarUrl} alt="" width={32} height={32} className="rounded-full w-8 h-8 object-cover" />
               ) : (

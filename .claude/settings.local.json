@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(update-config)",
+      "Bash(curl -sI \"https://stitch.withgoogle.com/api/project/4871166914925712247/screens\")",
+      "Bash(curl -L \"https://stitch.withgoogle.com/project/4871166914925712247\")",
+      "Bash(curl -sL --max-time 15 \"https://map.stateofleonida.net/\" -o /tmp/leonida_map.html)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(curl -sL --max-time 15 \"https://map.gtadb.org/\" -o /tmp/gtadb_map.html)",
+      "Bash(curl -sL --max-time 15 \"https://github.com/rolux/gtadb.org\")",
+      "Bash(curl -sL --max-time 15 \"https://raw.githubusercontent.com/rolux/gtadb.org/main/map/config.js\")",
+      "Bash(curl -sL --max-time 15 \"https://raw.githubusercontent.com/rolux/gtadb.org/main/map/index.js\")",
+      "Bash(export PATH=\"/c/Program Files/GitHub CLI\":$PATH)",
+      "Bash(gh issue:*)",
+      "Bash(find /c/Users/cici/Desktop/Projects/GTA6_Social/stitch_gta6 -type f -name *.md)",
+      "Bash(git commit:*)",
+      "Bash(export PATH=\"/c/Program Files/GitHub CLI:$PATH\")",
+      "Bash(ls:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm dlx:*)",
+      "Bash(find /c/Users/cici/Desktop/Projects/GTA6_Social -name *.sql -type f)",
+      "Bash(curl -s \"https://raw.githubusercontent.com/rolux/gtadb.org/main/map/index.js\")",
+      "Bash(curl -s \"https://api.github.com/repos/rolux/gtadb.org/contents/map/tiles\")",
+      "Bash(curl -s \"https://api.github.com/repos/rolux/gtadb.org/contents/map/tiles/6\")",
+      "Bash(curl -s \"https://api.github.com/repos/rolux/gtadb.org/contents/map/api\")",
+      "Bash(pnpm vitest:*)",
+      "Bash(curl:*)",
+      "Bash(pnpm tsx:*)",
+      "Bash(npx tsx:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/GitHub CLI\")",
+      "Bash(gh repo:*)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(git log:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(lsof -ti:3000)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "stitch"
+  ]
+}
