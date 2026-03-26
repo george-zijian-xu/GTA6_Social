@@ -107,6 +107,10 @@ export function LeafletMap({
       new (GtaTileLayer as any)("", {
         minZoom: GTA_MIN_ZOOM,
         maxZoom: GTA_MAX_ZOOM,
+        tileSize: 256,
+        zoomOffset: 0,
+        bounds: L.latLngBounds([-16384, -16384], [16384, 16384]),
+        noWrap: true,
         attribution: 'GTA VI map tiles — community data via <a href="https://map.gtadb.org">gtadb.org</a>',
       }).addTo(map);
     } else {
