@@ -200,7 +200,7 @@ export function LeafletMap({
       map.remove();
       mapInstanceRef.current = null;
     };
-  }, []);
+  }, [layer, locations, focusSlug, mini, center, isDark, onPinClick, router]);
 
   return (
     <div
