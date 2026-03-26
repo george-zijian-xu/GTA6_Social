@@ -11,6 +11,7 @@ import {
   gtaTileUrl,
   GTA_MIN_ZOOM,
   GTA_MAX_ZOOM,
+  GTA_MAX_NATIVE_ZOOM,
   GTA_DEFAULT_CENTER,
 } from "@/lib/gta-crs";
 
@@ -107,6 +108,7 @@ export function LeafletMap({
       new (GtaTileLayer as any)("", {
         minZoom: GTA_MIN_ZOOM,
         maxZoom: GTA_MAX_ZOOM,
+        maxNativeZoom: GTA_MAX_NATIVE_ZOOM,
         tileSize: 256,
         zoomOffset: 0,
         bounds: L.latLngBounds([-16384, -16384], [16384, 16384]),

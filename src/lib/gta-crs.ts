@@ -24,6 +24,9 @@ export const GTA_MIN_ZOOM = 2;
 /** Leaflet max zoom (gtadb z=6) */
 export const GTA_MAX_ZOOM = 8;
 
+/** Actual max zoom with available tiles (gtadb z=6 = Leaflet z=8) */
+export const GTA_MAX_NATIVE_ZOOM = 8;
+
 /** Default game-world center (roughly central Leonida) */
 export const GTA_DEFAULT_CENTER = { lat: 0, lng: -2000 } as const;
 
