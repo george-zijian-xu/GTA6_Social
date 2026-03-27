@@ -88,6 +88,6 @@ export function createGtaCRS(L: typeof import("leaflet")) {
       GTA_TRANSFORM.c,
       GTA_TRANSFORM.d,
     ),
-    infinite: false,
+    infinite: true,
   });
 }
