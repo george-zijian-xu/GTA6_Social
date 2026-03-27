@@ -87,8 +87,8 @@ export function LeafletMap({
       mapOptions.zoom = focusLoc ? GTA_MAX_ZOOM - 2 : GTA_DEFAULT_ZOOM;
     } else {
       const realCenter: [number, number] = center
-        ?? (focusLoc?.igX != null && focusLoc?.igY != null
-          ? [focusLoc.igY, focusLoc.igX]
+        ?? (focusLoc?.rlLat != null && focusLoc?.rlLng != null
+          ? [focusLoc.rlLat, focusLoc.rlLng]
           : REAL_DEFAULT_CENTER);
       mapOptions.center = realCenter;
       mapOptions.zoom = focusLoc ? 14 : REAL_DEFAULT_ZOOM;
