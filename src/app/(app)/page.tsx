@@ -10,10 +10,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://grandtheftauto6.com" },
 };
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<{ location?: string }> }) {
+  const params = await searchParams;
   const supabase = await createClient();
   const [{ posts, nextCursor }, { data: { user } }] = await Promise.all([
-    fetchFeedPage(),
+    fetchFeedPage(undefined, params.location),
     supabase.auth.getUser(),
   ]);
 

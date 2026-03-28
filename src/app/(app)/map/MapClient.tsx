@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { MapLocation } from "@/lib/locations";
 import { MapBottomPanel } from "@/components/MapBottomPanel";
+import { MapSearchBar } from "@/components/MapSearchBar";
 
 const LeafletMap = dynamic(() => import("@/components/LeafletMap").then((m) => m.LeafletMap), {
   ssr: false,
@@ -56,6 +57,11 @@ export function MapClient({ locations, focusSlug }: MapClientProps) {
 
   return (
     <div className="relative w-full h-full overflow-hidden">
+      {/* Search bar */}
+      <header className="absolute top-0 left-0 right-0 h-28 flex items-center px-10 z-[1000]">
+        <MapSearchBar currentLayer={layer} />
+      </header>
+
       {/* Map */}
       <LeafletMap
         key={layer}
