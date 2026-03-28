@@ -87,3 +87,51 @@ export async function getLocationBySlug(
     postCount: data.post_count,
   };
 }
+
+export async function searchLocations(
+  query: string,
+  client: SupabaseClient,
+): Promise<MapLocation[]> {
+  const { data, error } = await client
+    .from("locations")
+    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, description, post_count")
+    .ilike("name", `%${query}%`)
+    .order("post_count", { ascending: false })
+    .limit(10);
+
+  if (error || !data) return [];
+
+  return data.map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    category: row.category,
+    igX: row.ig_x,
+    igY: row.ig_y,
+    rlLat: row.rl_lat ?? null,
+    rlLng: row.rl_lng ?? null,
+    description: row.description ?? null,
+    postCount: row.post_count,
+  }));
+}
+
+export async function calculateLocationHotScore(
+  locationId: string,
+  client: SupabaseClient,
+): Promise<number> {
+  const { data, error } = await client
+    .from("posts")
+    .select("like_count, comment_count, created_at")
+    .eq("location_id", locationId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (error || !data || data.length === 0) return 0;
+
+  const post = data[0];
+  const ageHours = (Date.now() - new Date(post.created_at).getTime()) / (1000 * 60 * 60);
+  const ups = post.like_count + post.comment_count * 2;
+
+  return ups / Math.pow(ageHours + 2, 1.5);
+}
+
