@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { MapLocation } from "@/lib/locations";
-import { MapBottomSheet } from "@/components/MapBottomSheet";
+import { MapBottomPanel } from "@/components/MapBottomPanel";
 
 const LeafletMap = dynamic(() => import("@/components/LeafletMap").then((m) => m.LeafletMap), {
   ssr: false,
@@ -88,10 +88,11 @@ export function MapClient({ locations, focusSlug }: MapClientProps) {
         </button>
       </div>
 
-      {/* Bottom sheet */}
-      <MapBottomSheet
+      {/* Bottom panel */}
+      <MapBottomPanel
         location={selectedLocation}
-        onClose={() => setSelectedLocation(null)}
+        currentLayer={layer}
+        onLayerToggle={handleLayerChange}
       />
     </div>
   );
