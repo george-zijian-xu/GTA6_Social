@@ -38,9 +38,11 @@ export function MapLocationInfoCard({ location }: MapLocationInfoCardProps) {
           <h2 className="text-3xl font-extrabold tracking-tighter text-gray-900 dark:text-white">
             {location.name}
           </h2>
-          <p className="text-secondary text-[0.6rem] uppercase tracking-wide font-medium mt-1">
-            Leonida, State of Florida
-          </p>
+          {location.address && (
+            <p className="text-secondary text-[0.6rem] uppercase tracking-wide font-medium mt-1">
+              {location.address}
+            </p>
+          )}
         </div>
         {showToggle && (
           <div className="flex p-0.5 bg-gray-100 dark:bg-white/10 rounded-full scale-90 origin-right">

@@ -58,6 +58,7 @@ export function MiniMapModule({
         igY: igY ?? null,
         rlLat: rlLat ?? null,
         rlLng: rlLng ?? null,
+        address: null,
         description: null,
         postCount: 1,
       }]
