@@ -9,7 +9,7 @@ export interface MapLocation {
   igY: number | null;
   rlLat: number | null;
   rlLng: number | null;
-  description: string | null;
+  address: string | null;
   postCount: number;
 }
 

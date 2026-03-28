@@ -75,7 +75,8 @@ function transform(id: string, raw: RawLandmark, seen: Set<string>) {
     ig_y: igCoords ? igCoords[1] : null,
     rl_lat: rlCoords ? rlCoords[0] : null,
     rl_lng: rlCoords ? rlCoords[1] : null,
-    description: raw[3] || null,  // rl_address as description
+    address: raw[3] || null,
+    description: null,
   };
 }
 
