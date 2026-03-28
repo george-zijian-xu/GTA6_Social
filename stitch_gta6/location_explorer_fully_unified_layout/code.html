@@ -83,60 +83,34 @@
 </nav>
 <div class="mt-8 px-2">
 <button class="w-full bg-primary text-white rounded-full py-3 text-sm font-bold tracking-wide shadow-lg shadow-primary/30 hover:bg-red-600 transition-colors">
-                    POST
-                </button>
+                POST
+            </button>
 </div>
 <div class="mt-auto px-6 pb-8 space-y-5">
 <a class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" href="#">
 <span class="material-symbols-outlined text-[16px] mr-3">info</span> About
-                </a>
+            </a>
 <a class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" href="#">
 <span class="material-symbols-outlined text-[16px] mr-3">shield</span> Privacy
-                </a>
+            </a>
 <button class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors w-full text-left" onclick="document.documentElement.classList.toggle('dark')">
 <span class="material-symbols-outlined text-[16px] mr-3">tonality</span> Dark/Light Mode
-                </button>
+            </button>
 <a class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors" href="#">
 <span class="material-symbols-outlined text-[16px] mr-3">logout</span> Logout
-                </a>
+            </a>
 </div>
 </div>
 </aside>
 <!-- Main Content -->
 <main class="flex-1 flex flex-col relative h-full">
 <!-- Top Bar - Unified with SCREEN_26 -->
-<header class="h-28 flex items-center px-10 z-30 justify-between">
+<header class="h-28 flex items-center px-10 z-30">
 <div class="w-full max-w-2xl relative flex items-center bg-gray-100/80 dark:bg-surface-dark rounded-full px-4 py-2.5 border border-transparent dark:border-gray-800 focus-within:border-gray-300 dark:focus-within:border-gray-700 transition-colors">
 <span class="material-symbols-outlined text-gray-400 text-[20px] mr-2">search</span>
 <input class="bg-transparent border-none focus:ring-0 p-0 w-full text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 outline-none" placeholder="Search locations in Leonida..." type="text"/>
-<div class="flex items-center gap-1 ml-2">
-<button class="p-1.5 rounded-full bg-white dark:bg-gray-700 shadow-sm text-primary flex items-center justify-center">
-<span class="material-symbols-outlined text-[18px]">map</span>
-</button>
-<button class="p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex items-center justify-center">
-<span class="material-symbols-outlined text-[18px]">search</span>
-</button>
-</div>
-</div>
-<div class="ml-auto flex items-center gap-4">
-<button class="w-10 h-10 rounded-full bg-gray-100/80 dark:bg-surface-dark flex items-center justify-center text-gray-500 hover:text-primary transition-colors">
-<span class="material-symbols-outlined">filter_list</span>
-</button>
 </div>
 </header>
-<!-- Vertical Map View Toggle - Moved to right side -->
-<div class="absolute top-[20%] right-10 z-30">
-<div class="flex flex-col p-1.5 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-md rounded-full shadow-lg border border-white/40 dark:border-white/5 space-y-1">
-<button class="w-14 h-14 rounded-full flex flex-col items-center justify-center transition-all bg-primary text-white shadow-md">
-<span class="text-lg font-black leading-none tracking-tighter">VI</span>
-<span class="text-[8px] font-bold uppercase mt-0.5">Game</span>
-</button>
-<button class="w-14 h-14 rounded-full flex flex-col items-center justify-center transition-all text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
-<span class="material-symbols-outlined text-[20px]">public</span>
-<span class="text-[8px] font-bold uppercase mt-0.5 leading-none">Real</span>
-</button>
-</div>
-</div>
 <!-- Map Canvas Area -->
 <div class="absolute inset-0 z-0 overflow-hidden bg-background-light dark:bg-background-dark">
 <div class="w-full h-full flex items-center justify-center opacity-40 dark:opacity-20 pointer-events-none scale-110 translate-y-[-10%]">
@@ -172,26 +146,29 @@
 <div class="pointer-events-auto bg-white/90 dark:bg-surface-dark/90 backdrop-blur-xl p-8 rounded-[1.5rem] shadow-2xl border border-white/40 dark:border-white/5 w-[360px] flex-shrink-0">
 <div class="flex justify-between items-start mb-6">
 <div>
-<h2 class="text-3xl font-extrabold tracking-tighter text-gray-900 dark:text-white">Art Deco Welcome Center</h2>
-<p class="text-secondary text-[0.6rem] uppercase tracking-wide font-medium mt-1">1001 Ocean Dr, Miami Beach, FL 33139, USA</p>
+<h2 class="text-3xl font-extrabold tracking-tighter text-gray-900 dark:text-white">Leonida</h2>
+<p class="text-secondary text-[0.65rem] uppercase tracking-wider font-bold mt-1">State Explorer</p>
 </div>
-<div class="flex p-0.5 bg-gray-100 dark:bg-white/10 rounded-full scale-90 origin-right">
-<button class="px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-primary text-white shadow-sm">Game</button>
-<button class="px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider text-gray-400">Real Life</button>
+<div class="bg-gray-100 dark:bg-white/5 p-2 rounded-xl">
+<span class="material-symbols-outlined text-primary text-[20px]">explore</span>
 </div>
 </div>
 <div class="space-y-6">
 <div>
 <div class="flex justify-between items-center mb-2">
 <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Live Activity</span>
-<span class="text-[10px] font-bold text-primary">POPULAR</span>
+<span class="text-[10px] font-bold text-primary">75%</span>
 </div>
 <div class="h-1.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
 <div class="h-full bg-primary w-[75%]"></div>
 </div>
 </div>
-<p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400 font-medium">Famed the world over for its Art Deco, this area of Miami is the epicenter for architecture fans.</p>
-<button class="w-full py-4 bg-primary text-white rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-primary/20 hover:bg-red-600 transition-all active:scale-[0.98]">EXPLORE MORE</button>
+<p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400 font-medium">
+                        Explore real-time content curated from across the state. Tap a hotspot to see local highlights.
+                    </p>
+<button class="w-full py-4 bg-primary text-white rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-primary/20 hover:bg-red-600 transition-all active:scale-[0.98]">
+                        Filter Home Feed
+                    </button>
 </div>
 </div>
 <!-- Post Previews - Exact copies from SCREEN_26 -->
@@ -262,8 +239,8 @@
 </div>
 </div>
 </div>
-<!-- Map Zoom Controls -->
-<div class="absolute right-10 bottom-10 flex flex-col gap-3 z-30">
+<!-- Map Controls -->
+<div class="absolute right-10 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-30">
 <button class="w-12 h-12 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-md rounded-full flex items-center justify-center text-gray-700 dark:text-white shadow-xl hover:bg-white transition-all active:scale-95 border border-white/40 dark:border-white/5">
 <span class="material-symbols-outlined">add</span>
 </button>
