@@ -153,6 +153,14 @@ export function LeafletMap({
     const map = mapInstanceRef.current;
     if (!map) return;
 
+    console.log('[LeafletMap] Rendering pins:', {
+      locationsCount: locations.length,
+      layer,
+      focusSlug,
+      currentZoom,
+      sampleLocation: locations[0]
+    });
+
     markersRef.current.forEach(m => map.removeLayer(m));
     markersRef.current = [];
 
@@ -200,6 +208,8 @@ export function LeafletMap({
         });
       }
     }
+
+    console.log('[LeafletMap] Rendered', markersRef.current.length, 'pins');
   }, [locations, focusSlug, currentZoom, layer, mini, onPinClick]);
 
   return (

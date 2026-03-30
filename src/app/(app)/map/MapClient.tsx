@@ -27,6 +27,8 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
   const layerParam = searchParams.get("layer");
   const initialLayer = layerParam === "real" ? "real" : "game";
 
+  console.log('[MapClient] Received locations:', locations.length);
+
   const [layer, setLayer] = useState<"game" | "real">(initialLayer);
   const [isDark, setIsDark] = useState(false);
   const [focusedSlug, setFocusedSlug] = useState<string | undefined>(initialFocusSlug);
