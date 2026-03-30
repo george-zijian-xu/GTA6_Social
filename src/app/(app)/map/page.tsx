@@ -17,6 +17,8 @@ export default async function MapPage({ searchParams }: Props) {
   const supabase = await createClient();
   const locations = await getAllLocations(supabase);
 
+  console.log('[MapPage] Fetched locations:', locations.length, 'first:', locations[0]);
+
   return (
     <div className="fixed inset-0 left-0 md:left-64 bottom-14 md:bottom-0 z-30">
       <Suspense fallback={

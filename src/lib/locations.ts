@@ -48,7 +48,17 @@ export async function getAllLocations(
     .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, address, post_count, hot_score")
     .order("name");
 
-  if (error || !data) return [];
+  if (error) {
+    console.error('[getAllLocations] Error:', error);
+    return [];
+  }
+
+  if (!data) {
+    console.warn('[getAllLocations] No data returned');
+    return [];
+  }
+
+  console.log('[getAllLocations] Fetched', data.length, 'locations');
 
   return data.map((row) => ({
     id: row.id,
