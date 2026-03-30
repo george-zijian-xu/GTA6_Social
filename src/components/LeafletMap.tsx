@@ -38,9 +38,9 @@ const POPULAR_THRESHOLD = 50;
 const TOP_LOCATIONS_COUNT = 100;
 
 function createPinHTML(loc: MapLocation, isFocused: boolean): string {
-  if (loc.postCount === 0) {
-    return `<div style="width:16px;height:16px;display:flex;align-items:center;justify-content:center;cursor:pointer">
-      <div style="width:6px;height:6px;background:${isFocused ? '#ff2442' : '#9ca3af'};border-radius:50%;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></div>
+  if (loc.postCount === 0 && !isFocused) {
+    return `<div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+      <div style="width:8px;height:8px;background:#9ca3af;border-radius:50%;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></div>
     </div>`;
   }
 
@@ -151,15 +151,7 @@ export function LeafletMap({
   // Render pins whenever locations, focusSlug, or zoom changes
   useEffect(() => {
     const map = mapInstanceRef.current;
-    if (!map) return;
-
-    console.log('[LeafletMap] Rendering pins:', {
-      locationsCount: locations.length,
-      layer,
-      focusSlug,
-      currentZoom,
-      sampleLocation: locations[0]
-    });
+    if (!map || locations.length === 0) return;
 
     markersRef.current.forEach(m => map.removeLayer(m));
     markersRef.current = [];
@@ -169,7 +161,7 @@ export function LeafletMap({
     const showAll = currentZoom >= zoomThreshold;
 
     let visibleLocs = locations;
-    if (!showAll) {
+    if (!showAll && !mini) {
       const sorted = [...locations].sort((a, b) =>
         b.hotScore !== a.hotScore ? b.hotScore - a.hotScore : b.postCount - a.postCount
       );
@@ -208,8 +200,6 @@ export function LeafletMap({
         });
       }
     }
-
-    console.log('[LeafletMap] Rendered', markersRef.current.length, 'pins');
   }, [locations, focusSlug, currentZoom, layer, mini, onPinClick]);
 
   return (
