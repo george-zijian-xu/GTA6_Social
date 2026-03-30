@@ -72,6 +72,7 @@ export function LeafletMap({
   const router = useRouter();
   const [currentZoom, setCurrentZoom] = useState<number>(0);
 
+  // Initialize map once
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
@@ -129,61 +130,7 @@ export function LeafletMap({
       }).addTo(map);
     }
 
-    const renderPins = (zoom: number) => {
-      markersRef.current.forEach(m => map.removeLayer(m));
-      markersRef.current = [];
-
-      const zoomThreshold = isGame ? 6 : 13;
-      const showAll = zoom >= zoomThreshold;
-
-      let visibleLocs = locations;
-      if (!showAll) {
-        const sorted = [...locations].sort((a, b) =>
-          b.hotScore !== a.hotScore ? b.hotScore - a.hotScore : b.postCount - a.postCount
-        );
-        const top = sorted.slice(0, TOP_LOCATIONS_COUNT);
-        if (focusSlug && !top.find(l => l.slug === focusSlug)) {
-          const focused = locations.find(l => l.slug === focusSlug);
-          if (focused) top.push(focused);
-        }
-        visibleLocs = top;
-      }
-
-      for (const loc of visibleLocs) {
-        let latlng: [number, number] | null = null;
-        if (isGame) {
-          if (loc.igX != null && loc.igY != null) latlng = [loc.igY, loc.igX];
-        } else {
-          if (loc.rlLat != null && loc.rlLng != null) latlng = [loc.rlLat, loc.rlLng];
-        }
-        if (!latlng) continue;
-
-        const isFocused = loc.slug === focusSlug;
-        const icon = L.divIcon({
-          html: createPinHTML(loc, isFocused),
-          className: '',
-          iconSize: [40, 40],
-          iconAnchor: [20, 40],
-        });
-
-        const marker = L.marker(latlng, { icon }).addTo(map);
-        markersRef.current.push(marker);
-
-        if (!mini && onPinClick) {
-          marker.on("click", () => {
-            onPinClick(loc);
-            map.flyTo(latlng, isGame ? 7 : 14, { duration: 0.5 });
-          });
-        }
-      }
-    };
-
-    renderPins(map.getZoom());
-    map.on('zoomend', () => {
-      const z = map.getZoom();
-      setCurrentZoom(z);
-      renderPins(z);
-    });
+    map.on('zoomend', () => setCurrentZoom(map.getZoom()));
 
     if (!mini && onPinClick) {
       map.on('click', (e) => {
@@ -199,7 +146,61 @@ export function LeafletMap({
       map.remove();
       mapInstanceRef.current = null;
     };
-  }, [layer, locations, focusSlug, mini, center, isDark, onPinClick, router]);
+  }, [layer, mini, center, onPinClick, router]);
+
+  // Render pins whenever locations, focusSlug, or zoom changes
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    markersRef.current.forEach(m => map.removeLayer(m));
+    markersRef.current = [];
+
+    const isGame = layer === "game";
+    const zoomThreshold = isGame ? 6 : 13;
+    const showAll = currentZoom >= zoomThreshold;
+
+    let visibleLocs = locations;
+    if (!showAll) {
+      const sorted = [...locations].sort((a, b) =>
+        b.hotScore !== a.hotScore ? b.hotScore - a.hotScore : b.postCount - a.postCount
+      );
+      const top = sorted.slice(0, TOP_LOCATIONS_COUNT);
+      if (focusSlug && !top.find(l => l.slug === focusSlug)) {
+        const focused = locations.find(l => l.slug === focusSlug);
+        if (focused) top.push(focused);
+      }
+      visibleLocs = top;
+    }
+
+    for (const loc of visibleLocs) {
+      let latlng: [number, number] | null = null;
+      if (isGame) {
+        if (loc.igX != null && loc.igY != null) latlng = [loc.igY, loc.igX];
+      } else {
+        if (loc.rlLat != null && loc.rlLng != null) latlng = [loc.rlLat, loc.rlLng];
+      }
+      if (!latlng) continue;
+
+      const isFocused = loc.slug === focusSlug;
+      const icon = L.divIcon({
+        html: createPinHTML(loc, isFocused),
+        className: '',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+      });
+
+      const marker = L.marker(latlng, { icon }).addTo(map);
+      markersRef.current.push(marker);
+
+      if (!mini && onPinClick) {
+        marker.on("click", () => {
+          onPinClick(loc);
+          map.flyTo(latlng, isGame ? 7 : 14, { duration: 0.5 });
+        });
+      }
+    }
+  }, [locations, focusSlug, currentZoom, layer, mini, onPinClick]);
 
   return (
     <div
