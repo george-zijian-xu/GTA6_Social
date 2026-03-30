@@ -1,176 +1,201 @@
 # PRD: Location Explorer Map Page Enhancements
 
+## Status
+Phase 1 (Search + Bottom Panel) ✅ COMPLETED
+Phase 2 (Pin System Enhancement) 🚧 IN PROGRESS
+
 ## Problem Statement
 
-The current Location Explorer map page (`/map`) lacks critical search functionality and has a basic bottom sheet design that doesn't match the premium editorial feel of the rest of the site. Users cannot search for locations directly from the map page, and when they do want to search, there's ambiguity about whether they want to:
-1. Refocus the map on a searched location, or
-2. Navigate to the home feed filtered by that location
+The current Location Explorer map page (`/map`) has implemented search functionality and card-based bottom panel, but the pin system needs significant enhancement. Current pin issues:
 
-Additionally, the bottom panel doesn't provide enough context about locations (no descriptions, activity metrics, or dual-map toggle), and the map pins don't clearly indicate which location is currently focused or how popular each location is.
+1. **Poor Clickability**: Small grey dots are difficult to click; users often mis-click on the map instead. The clickable area needs to be larger than the visual size.
+
+2. **No Highlight System**: When users focus on a location (via search, mini-map navigation, or direct click), there's no visual differentiation to identify the focused pin among all others.
+
+3. **No Information Display**: Pins don't show post counts, making it impossible to identify popular locations at a glance. The backend popularity algorithm (hot_score) exists but isn't reflected in pin design.
+
+4. **No Smart Clustering**: With thousands of locations, the map becomes cluttered at zoomed-out views. Need intelligent visibility management based on zoom level and popularity.
 
 ## Solution
 
-Enhance the Location Explorer page with:
+### Phase 2: Enhanced Pin System (Current Focus)
 
-1. **Smart Search Bar**: Add a search bar at the top with a map/magnifier toggle that lets users choose their intent:
-   - Map toggle: Search for locations and refocus the map on the selected location
-   - Magnifier toggle: Search for locations and navigate to home feed with location filter
-   - Non-location searches always go to home feed
+Redesign the map pin system with two distinct pin types and intelligent visibility management:
 
-2. **Card-Style Bottom Panel**: Replace the bar-style bottom sheet with a horizontal scrollable card layout:
-   - First card: Location info card with name, address, live activity metric, description, "Explore More" button, and game/real-life map toggle
-   - Subsequent cards: Post preview cards for that location
-   - Arrow button navigation for desktop
+1. **Two Pin Types**:
+   - **Grey Dot Pins**: For locations with 0 posts (unchanged from current design)
+   - **Rounded Rectangle Pins**: For locations with posts, displaying post count with a small triangular tip at bottom
 
-3. **Enhanced Map Pins with Clustering**:
-   - Implement pin clustering (like Apple Maps/Google Maps) to handle thousands of locations
-   - Clusters show aggregated post counts
-   - Individual pins show post count badges
-   - Make the focused location pin larger and red for visibility
-   - Size pins based on popularity using Reddit's hot ranking algorithm
+2. **Three Pin States**:
+   - **Regular Pins**: White background, grey text, shows post count
+   - **Popular Pins**: White background with light pink border (#ff244220), shows post count (determined by backend hot_score algorithm)
+   - **Highlighted/Focused Pins**: Bright red (#ff2442) background, white text, shows post count (overrides all other states)
 
-4. **Database Enhancement**: Add description field to locations table for future content
+3. **Enhanced Clickability**: All pins have larger clickable areas than their visual size to prevent mis-clicks
+
+4. **Dynamic Focus System**:
+   - Focus changes based on user interaction: search selection, mini-map navigation, direct pin click
+   - URL parameter `?focus=slug` reflects current focus but doesn't lock it
+   - Bottom panel cards respond to focused location
+
+5. **Smart Visibility Management** (instead of traditional clustering):
+   - At zoomed-out views: Hide less popular pins, show only very popular locations + highlighted location
+   - As user zooms in: Gradually reveal more pins based on popularity threshold
+   - Highlighted pin always visible at any zoom level
+   - Auto-zoom when user clicks a pin to focus it
 
 ## User Stories
 
-1. As a map page visitor, I want to search for locations directly from the map page, so that I don't have to navigate away to find a specific place
-2. As a user searching for a location, I want to choose whether to see it on the map or filter the feed by it, so that I have control over my navigation intent
-3. As a user who searches for non-location content (posts/users), I want to be automatically taken to the home feed search results, so that I can find what I'm looking for
-4. As a user typing a location name, I want to see autocomplete suggestions, so that I can quickly select the exact location I mean when multiple matches exist
-5. As a map user, I want the search toggle to default to "map" mode, so that the most common use case (exploring the map) is the default behavior
-6. As a user viewing a location on the map, I want to see a card with detailed information about that location, so that I understand what makes it interesting
-7. As a user viewing location details, I want to see how active/popular the location is, so that I know if it's worth exploring
-8. As a user viewing location details, I want to see a description of the location, so that I have context about what this place is
-9. As a user on desktop, I want to scroll through post cards using arrow buttons, so that I can easily browse posts from that location
-10. As a user viewing a location, I want to toggle between the game map and real-life map views, so that I can see where it exists in both contexts
-11. As a user viewing a location that only exists in one map type, I want the toggle to be hidden, so that I'm not confused by unavailable options
-12. As a user looking at the map, I want to see which location is currently focused with a distinctive pin, so that I can easily identify it among other pins
-13. As a user browsing the map, I want to see post counts on each pin, so that I know which locations have the most content
-18. As a user viewing a zoomed-out map with many locations, I want pins to cluster together, so that the map remains readable and performant
-19. As a user viewing a cluster, I want to see the total post count for all locations in that cluster, so that I know how much content is in that area
-20. As a user clicking on a cluster, I want the map to zoom in and break the cluster into smaller clusters or individual pins, so that I can explore specific locations
-21. As a user viewing location popularity, I want it calculated using a time-decay algorithm (like Reddit's hot ranking), so that recent activity is weighted more heavily than old posts
-14. As a user who clicks "Explore More" on a location, I want to see a friendly message, so that I know this feature is coming soon
-15. As a user searching for a location with the magnifier toggle active, I want to land on the home feed with a visible location filter chip, so that I know I'm viewing filtered content and can clear it easily
-16. As a user viewing the map, I want smooth animated transitions when the map refocuses on a searched location, so that I can follow where the map is moving
-17. As a user viewing location cards, I want locations with only an address (no name) to display the address as the name, so that every location has a clear identifier
+### Phase 1 (Completed)
+1. ✅ As a map page visitor, I want to search for locations directly from the map page
+2. ✅ As a user searching for a location, I want to choose whether to see it on the map or filter the feed by it
+3. ✅ As a user viewing a location on the map, I want to see a card with detailed information about that location
+4. ✅ As a user on desktop, I want to scroll through post cards using arrow buttons
+5. ✅ As a user viewing the map, I want smooth animated transitions when the map refocuses
+
+### Phase 2 (Pin System Enhancement)
+6. As a user clicking on small pins, I want a larger clickable area than the visual size, so that I don't accidentally click the map instead
+7. As a user who searched for a location, I want to see it highlighted with a distinctive red pin, so that I can easily identify it among all other pins
+8. As a user who clicked on a pin, I want it to become the highlighted pin and the map to auto-zoom to it, so that I can focus on that location
+9. As a user who navigated from a mini-map, I want the corresponding location to be highlighted on the full map, so that I maintain context
+10. As a user browsing the map, I want to see post counts displayed on pins (except zero-post pins), so that I know which locations have content
+11. As a user viewing pins, I want popular locations to have a distinctive pink border, so that I can identify high-engagement areas at a glance
+12. As a user viewing a highlighted pin, I want it to always show in red regardless of popularity, so that my current focus is always clear
+13. As a user viewing a zoomed-out map, I want less popular pins to be hidden, so that the map remains readable and I can focus on major locations
+14. As a user zooming into the map, I want more pins to gradually appear based on popularity, so that I discover locations as I explore
+15. As a user viewing any zoom level, I want the highlighted pin to always be visible, so that I never lose track of my focused location
+16. As a user viewing locations with zero posts, I want them shown as small grey dots, so that they don't clutter the map but are still discoverable
 
 ## Implementation Decisions
 
-### Search Bar Component
-- Create new `MapSearchBar` component for the map page
-- Include two toggle buttons (map icon and magnifier icon) always visible in the search bar
-- Default toggle state: map mode (not persistent across sessions)
-- Implement autocomplete dropdown showing location suggestions as user types
-- Search logic: Query locations table with ILIKE pattern match on name field
-- If matches found: treat as location search, show autocomplete
-- If no location matches: treat as general search, navigate to `/search?q=...`
+### Pin Visual Design
 
-### Search Behavior
-- **Map toggle active + location selected**: Navigate to `/map?focus=[slug]&layer=[current]` with smooth pan/zoom animation to location, open bottom sheet
-- **Magnifier toggle active + location selected**: Navigate to `/?location=[slug]` (home feed with location filter)
-- **Non-location search**: Navigate to `/search?q=...` regardless of toggle state
+**Grey Dot Pins (0 posts)**:
+- Size: 6px diameter circle
+- Color: #9ca3af (grey-400)
+- Clickable area: 16px diameter (invisible padding)
+- No label or count display
+- Can be highlighted (turns red when focused)
 
-### Home Feed Location Filter
-- Add support for `location` query parameter on home feed page
-- Display filter chip at top of feed: "Location: [Name] ×" with clear button
-- Filter posts by location_slug in feed query
-- Clicking × removes query param and shows full feed
+**Rounded Rectangle Pins (1+ posts)**:
+- Shape: Rounded rectangle with small triangular tip at bottom (like Stitch design)
+- Background colors:
+  - Regular: white (#ffffff)
+  - Popular: white with 2px light pink border (border: #ff244240)
+  - Highlighted: bright red (#ff2442)
+- Text: Post count + "posts" label
+  - Regular/Popular: grey text (#374151)
+  - Highlighted: white text (#ffffff)
+- Font size: 9-10px, bold
+- Padding: 6px horizontal, 4px vertical
+- Border radius: 6px
+- Tip: 4px triangle pointing down
+- Clickable area: Entire pin + 4px padding around edges
 
-### Bottom Panel Redesign
-- Replace `MapBottomSheet` component with new card-based horizontal scroll layout
-- First card: Location info card (360px width, fixed)
-  - Location name (bold, large) or address-as-name if no name
-  - Address in gray text below (hidden if address was promoted to name)
-  - Live activity: Calculate using Reddit's hot ranking algorithm (time-decay based on post age, likes, and comments)
-  - Description text (max 150 chars, from new DB column, hide section if null)
-  - "Explore More" button: Show toast "Coming soon! 🚧" on click
-  - Game/Real toggle: Hide entirely if location only has one coordinate type (check igX/igY and rlLat/rlLng)
-- Subsequent cards: Post preview cards (240px width each)
-- Desktop: Left/right arrow buttons overlaid on panel edges
-- Mobile: Touch drag scrolling
+### Pin State Logic
 
-### Map Pin Clustering
-- Integrate Leaflet.markercluster plugin for pin clustering
-- Cluster appearance: Circular badge showing total post count for all locations in cluster
-- Cluster size/color based on aggregated post count (similar to individual pin sizing)
-- Clicking cluster: Zoom in to break cluster apart (standard Leaflet.markercluster behavior)
-- Individual pins within clusters: Show post count badge above pin
-- Focused location pin: Never clusters, always visible at 2x size + primary red
-- Cluster distance: 80px at default zoom (adjustable based on testing)
+```
+if (location.slug === focusedSlug) {
+  return HIGHLIGHTED_PIN; // Always red, overrides everything
+}
+if (location.postCount === 0) {
+  return GREY_DOT_PIN;
+}
+if (location.hotScore >= POPULAR_THRESHOLD) {
+  return POPULAR_PIN; // White with pink border
+}
+return REGULAR_PIN; // White, no border
+```
 
-### Popularity Algorithm (Reddit Hot Ranking)
-- Replace simple post count with time-decay algorithm
-- Formula: `score = (ups - downs) / (age_hours + 2)^1.5`
-  - `ups` = likes + (comments * 2) for the location's posts
-  - `downs` = 0 (no downvotes in our system)
-  - `age_hours` = hours since location's most recent post
-- Calculate on-demand when location is viewed (not stored in DB)
-- Use for pin sizing and "Live Activity" display
-- Activity labels: "🔥 Hot" (score > 100), "⚡ Active" (score > 20), "📍 Steady" (score > 5), "💤 Quiet" (score ≤ 5)
+Popular threshold: `hotScore >= 50` (configurable constant)
 
-### Database Changes
-- Add `description` column to `locations` table: `TEXT` type, nullable, max 150 chars (enforced in app layer)
-- Create migration: `010_add_location_description.sql`
+### Focus Management System
 
-### API/Data Layer
-- Create new function in `src/lib/locations.ts`: `searchLocations(query: string, client: SupabaseClient)` - returns matching locations
-- Create new function in `src/lib/locations.ts`: `calculateLocationHotScore(locationId: string, client: SupabaseClient)` - implements Reddit hot ranking algorithm
-- Extend `MapLocation` interface to include `description: string | null` and `hotScore: number`
-- Query for hot score calculation: Get most recent post timestamp, sum of likes, sum of comments for location's posts
+**Focus Sources** (in order of priority):
+1. User clicks a pin directly → Set that location as focused, auto-zoom to it
+2. User searches and selects a location (map toggle) → Set as focused, smooth pan/zoom
+3. User navigates from mini-map → URL param `?focus=slug` sets initial focus
+4. No focus → Show map at default zoom, no highlighted pin
 
-### Component Architecture
-- **MapSearchBar.tsx**: New component for map page search with toggle
-- **MapLocationInfoCard.tsx**: New component for first card in bottom panel
-- **MapBottomPanel.tsx**: New component replacing MapBottomSheet, manages horizontal scroll
-- **LocationFilterChip.tsx**: New component for home feed location filter indicator
-- Update **MapClient.tsx**: Integrate new search bar, handle search navigation
-- Update **LeafletMap.tsx**: Integrate leaflet.markercluster, enhanced pin styling for focused location, add post count badges
-- Update **page.tsx** (home feed): Add location filter support
-- Install dependency: `leaflet.markercluster` and `@types/leaflet.markercluster`
+**Focus Behavior**:
+- Focus is dynamic and changes with user interaction (not locked to URL param)
+- When focus changes: Update URL param, update bottom panel, re-render pins
+- Clicking map background (not a pin) → Clear focus, zoom out to default view
+- Auto-zoom levels:
+  - Game map: Zoom to level 7 (close-up)
+  - Real map: Zoom to level 14 (street level)
+
+### Smart Visibility Management
+
+Simple zoom-based filtering to prevent clutter at zoomed-out views:
+
+**Zoom Thresholds**:
+
+**Game Map**:
+- Zoom < 6 (zoomed out): Show top 100 locations by hotScore + highlighted pin
+- Zoom >= 6 (zoomed in): Show all pins
+
+**Real Map**:
+- Zoom < 13 (zoomed out): Show top 100 locations by hotScore + highlighted pin
+- Zoom >= 13 (zoomed in): Show all pins
+
+**Sorting Logic**:
+- Primary: hotScore (descending)
+- Fallback: postCount (descending) - ensures pins show even when all hotScores are 0
+- Highlighted pin always included regardless of rank
+
+**Benefits**:
+- Simple, predictable behavior
+- No performance concerns
+- Works even when all locations have 0 posts
+- Users understand: zoom in to see more
+
+### Component Changes
+
+**Update LeafletMap.tsx**:
+- Replace `L.circleMarker` with custom DivIcon for rounded rectangle pins
+- Implement pin rendering logic based on state (grey dot vs rectangle, regular vs popular vs highlighted)
+- Add zoom event listener to recalculate pin visibility
+- Increase clickable area using CSS (larger hit box than visual size)
+- Handle pin click: set focus, auto-zoom, update URL
+- Handle map background click: clear focus
+
+**Update MapClient.tsx**:
+- Add `focusedSlug` state (separate from URL param)
+- Pass `focusedSlug` to LeafletMap for pin highlighting
+- Update `onPinClick` handler to set focused slug and update URL
+
+**Update locations data**:
+- Ensure `hotScore` is included in MapLocation interface
+- Calculate hotScore server-side or client-side (TBD based on performance)
 
 ## Testing Decisions
 
-### What Makes a Good Test
-- Test external behavior, not implementation details
-- Test user-facing functionality and data transformations
-- Avoid testing internal state or private methods
-- Focus on critical paths and edge cases
+### Phase 2 Testing Focus
 
-### Modules to Test
-1. **Location search function** (`searchLocations` in `src/lib/locations.ts`)
-   - Test: Returns matching locations for partial name match
-   - Test: Returns empty array when no matches
-   - Test: Case-insensitive matching works correctly
+1. **Pin visibility logic**:
+   - Test: Correct pins shown at each zoom threshold
+   - Test: Highlighted pin always visible regardless of zoom
+   - Test: Grey dots only appear at highest zoom levels
 
-2. **Hot score calculation** (`calculateLocationHotScore` in `src/lib/locations.ts`)
-   - Test: Calculates correct score using Reddit formula
-   - Test: Recent posts score higher than old posts with same engagement
-   - Test: Returns 0 for locations with no posts
-   - Test: Handles edge case of very new posts (age_hours near 0)
+2. **Focus management**:
+   - Test: Pin click sets focus and updates URL
+   - Test: Search selection sets focus correctly
+   - Test: Map background click clears focus
 
-3. **Home feed location filter**
-   - Test: Feed correctly filters posts by location_slug
-   - Test: Filter chip displays correct location name
-   - Test: Clearing filter shows all posts
-
-4. **Pin clustering behavior**
-   - Test: Clusters form correctly at different zoom levels
-   - Test: Focused pin never gets clustered
-   - Test: Cluster post counts aggregate correctly
-
-### Prior Art
-- Existing search tests in `src/lib/search.ts` for pattern matching
-- Feed filtering logic similar to existing RPC function tests
-- Component interaction tests similar to existing PostCard tests
+3. **Pin rendering**:
+   - Test: Correct pin type rendered based on postCount and hotScore
+   - Test: Highlighted state overrides popular state
+   - Test: Post count displays correctly on rectangle pins
 
 ## Out of Scope
 
-The following items are explicitly out of scope for this PRD:
-
-1. **Realtime location activity updates**: Activity metrics are calculated on page load, not updated in realtime
-2. **Location descriptions content**: The description field will be added to the database but will remain empty initially. Content population is a separate content creation task
-3. **Custom map styles**: Beyond game/real toggle and clustering, no custom tile layers or map themes
+### Phase 2 Out of Scope:
+1. **Traditional clustering with cluster markers**: Using smart visibility instead
+2. **Pin animations**: No pulsing, bouncing, or complex animations (keep it simple)
+3. **Custom pin icons/images**: Text-based pins only
+4. **Multi-select pins**: Only one focused location at a time
+5. **Pin filtering UI**: No separate controls to filter pins by category/type
 4. **Location creation/editing UI**: Admin interface for managing locations is separate
 5. **Mobile-specific bottom sheet gestures**: Drag-to-dismiss, snap points, etc. Basic scroll works but advanced gestures deferred
 6. **Search history/suggestions**: No saved searches or trending locations
@@ -208,13 +233,11 @@ This enhancement aligns with the stitch design reference at `stitch_gta6/locatio
 - Focused pin must be excluded from clustering (use separate marker layer)
 - Arrow buttons should disable when at scroll boundaries (start/end of card list)
 - Toast notifications should auto-dismiss after 3 seconds
-- Leaflet.markercluster CSS must be imported alongside leaflet.css
 
 ### Future Enhancements (Post-MVP)
 - Persistent user preference for map/magnifier toggle
 - Realtime activity updates via Supabase Realtime
 - Location description content population
-- Custom cluster icons with better visual hierarchy
 - Location sharing functionality
 - Heatmap overlay for activity density
 

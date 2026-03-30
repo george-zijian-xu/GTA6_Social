@@ -59,8 +59,8 @@ export function MiniMapModule({
         rlLat: rlLat ?? null,
         rlLng: rlLng ?? null,
         address: null,
-        description: null,
         postCount: 1,
+        hotScore: 0,
       }]
     : [];
 

@@ -21,7 +21,7 @@ interface MapClientProps {
   focusSlug?: string;
 }
 
-export function MapClient({ locations, focusSlug }: MapClientProps) {
+export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const layerParam = searchParams.get("layer");
@@ -29,13 +29,38 @@ export function MapClient({ locations, focusSlug }: MapClientProps) {
 
   const [layer, setLayer] = useState<"game" | "real">(initialLayer);
   const [isDark, setIsDark] = useState(false);
+  const [focusedSlug, setFocusedSlug] = useState<string | undefined>(initialFocusSlug);
   const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(null);
 
   const handleLayerChange = (newLayer: "game" | "real") => {
     setLayer(newLayer);
     const params = new URLSearchParams(searchParams.toString());
     params.set("layer", newLayer);
+    if (focusedSlug) params.set("focus", focusedSlug);
     router.replace(`/map?${params.toString()}`, { scroll: false });
+  };
+
+  const handlePinClick = (loc: MapLocation | null) => {
+    if (!loc) {
+      setFocusedSlug(undefined);
+      setSelectedLocation(null);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("focus");
+      router.replace(`/map?${params.toString()}`, { scroll: false });
+    } else {
+      setFocusedSlug(loc.slug);
+      setSelectedLocation(loc);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("focus", loc.slug);
+      params.set("layer", layer);
+      router.replace(`/map?${params.toString()}`, { scroll: false });
+    }
+  };
+
+  const handleSearchSelect = (loc: { id: string; name: string; slug: string } | null) => {
+    if (!loc) return;
+    const fullLoc = locations.find(l => l.slug === loc.slug);
+    if (fullLoc) handlePinClick(fullLoc);
   };
 
   useEffect(() => {
@@ -47,32 +72,31 @@ export function MapClient({ locations, focusSlug }: MapClientProps) {
     return () => observer.disconnect();
   }, []);
 
-  // Auto-open sheet for focused location
   useEffect(() => {
-    if (focusSlug) {
-      const loc = locations.find((l) => l.slug === focusSlug);
-      if (loc) setSelectedLocation(loc);
+    if (initialFocusSlug) {
+      const loc = locations.find((l) => l.slug === initialFocusSlug);
+      if (loc) {
+        setFocusedSlug(initialFocusSlug);
+        setSelectedLocation(loc);
+      }
     }
-  }, [focusSlug]);
+  }, [initialFocusSlug, locations]);
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {/* Search bar */}
       <header className="absolute top-0 left-0 right-0 h-28 flex items-center px-10 z-[1000]">
-        <MapSearchBar currentLayer={layer} />
+        <MapSearchBar currentLayer={layer} onLocationSelect={handleSearchSelect} />
       </header>
 
-      {/* Map */}
       <LeafletMap
         key={layer}
         locations={locations}
-        focusSlug={focusSlug}
+        focusSlug={focusedSlug}
         layer={layer}
         isDark={isDark}
-        onPinClick={setSelectedLocation}
+        onPinClick={handlePinClick}
       />
 
-      {/* Layer toggle */}
       <div className="absolute top-4 right-4 z-1000 flex rounded-xl overflow-hidden shadow-lg border border-foreground/10 bg-surface-card dark:bg-[#1e1e1e]">
         <button
           onClick={() => handleLayerChange("game")}
@@ -94,7 +118,6 @@ export function MapClient({ locations, focusSlug }: MapClientProps) {
         </button>
       </div>
 
-      {/* Bottom panel */}
       <MapBottomPanel
         location={selectedLocation}
         currentLayer={layer}

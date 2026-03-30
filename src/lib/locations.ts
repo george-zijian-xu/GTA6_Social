@@ -11,6 +11,7 @@ export interface MapLocation {
   rlLng: number | null;
   address: string | null;
   postCount: number;
+  hotScore: number;
 }
 
 export async function getLocationsWithPosts(
@@ -18,7 +19,7 @@ export async function getLocationsWithPosts(
 ): Promise<MapLocation[]> {
   const { data, error } = await client
     .from("locations")
-    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, address, post_count")
+    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, address, post_count, hot_score")
     .gt("post_count", 0)
     .order("post_count", { ascending: false });
 
@@ -35,6 +36,7 @@ export async function getLocationsWithPosts(
     rlLng: row.rl_lng ?? null,
     address: row.address ?? null,
     postCount: row.post_count,
+    hotScore: row.hot_score ?? 0,
   }));
 }
 
@@ -43,7 +45,7 @@ export async function getAllLocations(
 ): Promise<MapLocation[]> {
   const { data, error } = await client
     .from("locations")
-    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, address, post_count")
+    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, address, post_count, hot_score")
     .order("name");
 
   if (error || !data) return [];
@@ -59,6 +61,7 @@ export async function getAllLocations(
     rlLng: row.rl_lng ?? null,
     address: row.address ?? null,
     postCount: row.post_count,
+    hotScore: row.hot_score ?? 0,
   }));
 }
 
@@ -68,7 +71,7 @@ export async function getLocationBySlug(
 ): Promise<MapLocation | null> {
   const { data, error } = await client
     .from("locations")
-    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, address, post_count")
+    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, address, post_count, hot_score")
     .eq("slug", slug)
     .single();
 
@@ -85,6 +88,7 @@ export async function getLocationBySlug(
     rlLng: data.rl_lng ?? null,
     address: data.address ?? null,
     postCount: data.post_count,
+    hotScore: data.hot_score ?? 0,
   };
 }
 
@@ -94,7 +98,7 @@ export async function searchLocations(
 ): Promise<MapLocation[]> {
   const { data, error } = await client
     .from("locations")
-    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, address, post_count")
+    .select("id, name, slug, category, ig_x, ig_y, rl_lat, rl_lng, address, post_count, hot_score")
     .ilike("name", `%${query}%`)
     .order("post_count", { ascending: false })
     .limit(10);
@@ -112,6 +116,7 @@ export async function searchLocations(
     rlLng: row.rl_lng ?? null,
     address: row.address ?? null,
     postCount: row.post_count,
+    hotScore: row.hot_score ?? 0,
   }));
 }
 

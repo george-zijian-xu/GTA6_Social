@@ -6,9 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 
 interface MapSearchBarProps {
   currentLayer: "game" | "real";
+  onLocationSelect?: (location: { id: string; name: string; slug: string } | null) => void;
 }
 
-export function MapSearchBar({ currentLayer }: MapSearchBarProps) {
+export function MapSearchBar({ currentLayer, onLocationSelect }: MapSearchBarProps) {
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<"map" | "feed">("map");
   const [locations, setLocations] = useState<{ id: string; name: string; slug: string }[]>([]);
@@ -60,9 +61,13 @@ export function MapSearchBar({ currentLayer }: MapSearchBarProps) {
     setShowDropdown(false);
   };
 
-  const selectLocation = (loc: { name: string; slug: string }) => {
+  const selectLocation = (loc: { id: string; name: string; slug: string }) => {
     if (mode === "map") {
-      router.push(`/map?focus=${loc.slug}&layer=${currentLayer}`);
+      if (onLocationSelect) {
+        onLocationSelect(loc);
+      } else {
+        router.push(`/map?focus=${loc.slug}&layer=${currentLayer}`);
+      }
     } else {
       router.push(`/?location=${loc.slug}`);
     }

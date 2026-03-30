@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -25,7 +25,6 @@ interface LeafletMapProps {
   onPinClick?: (location: MapLocation) => void;
 }
 
-// Real-world defaults (Florida / Vice City area)
 const REAL_DEFAULT_CENTER: [number, number] = [25.76, -80.19];
 const REAL_DEFAULT_ZOOM = 11;
 const CARTO_LIGHT = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
@@ -33,22 +32,29 @@ const CARTO_DARK = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.pn
 const CARTO_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
-// GTA tile config
 const GTA_TILESET = "yanis,10";
-const GTA_DEFAULT_ZOOM = 5; // Leaflet zoom 5 = gtadb zoom 3, good overview
+const GTA_DEFAULT_ZOOM = 5;
+const POPULAR_THRESHOLD = 50;
+const TOP_LOCATIONS_COUNT = 100;
 
-function pinSize(postCount: number): number {
-  if (postCount >= 50) return 24;
-  if (postCount >= 20) return 18;
-  if (postCount >= 5) return 14;
-  return 10;
-}
+function createPinHTML(loc: MapLocation, isFocused: boolean): string {
+  if (loc.postCount === 0) {
+    return `<div style="width:16px;height:16px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+      <div style="width:6px;height:6px;background:${isFocused ? '#ff2442' : '#9ca3af'};border-radius:50%;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></div>
+    </div>`;
+  }
 
-function pinColor(postCount: number): string {
-  if (postCount >= 50) return "#ff2442";
-  if (postCount >= 20) return "#e61e3a";
-  if (postCount >= 5) return "#f97316";
-  return "#6b7280";
+  const isPopular = loc.hotScore >= POPULAR_THRESHOLD;
+  const bg = isFocused ? '#ff2442' : '#ffffff';
+  const color = isFocused ? '#ffffff' : '#374151';
+  const border = isFocused ? 'none' : (isPopular ? '2px solid rgba(255,36,66,0.25)' : '1px solid #e5e7eb');
+
+  return `<div style="display:flex;flex-direction:column;align-items:center;cursor:pointer">
+    <div style="background:${bg};color:${color};font-size:9px;font-weight:700;padding:4px 6px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.15);border:${border};font-family:Inter,sans-serif">
+      ${loc.postCount} <span style="font-size:7px;font-weight:500;opacity:0.7">posts</span>
+    </div>
+    <div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid ${bg};margin-top:-1px"></div>
+  </div>`;
 }
 
 export function LeafletMap({
@@ -62,7 +68,9 @@ export function LeafletMap({
 }: LeafletMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
   const router = useRouter();
+  const [currentZoom, setCurrentZoom] = useState<number>(0);
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
@@ -70,7 +78,6 @@ export function LeafletMap({
     const isGame = layer === "game";
     const focusLoc = focusSlug ? locations.find((l) => l.slug === focusSlug) : null;
 
-    // ── CRS + center ──
     let mapOptions: L.MapOptions = { zoomControl: !mini, attributionControl: !mini };
 
     if (isGame) {
@@ -84,7 +91,7 @@ export function LeafletMap({
           ? gameCoordsToLatLng(focusLoc.igX, focusLoc.igY)
           : GTA_DEFAULT_CENTER;
       mapOptions.center = [focusLL.lat, focusLL.lng];
-      mapOptions.zoom = focusLoc ? GTA_MAX_ZOOM - 2 : GTA_DEFAULT_ZOOM;
+      mapOptions.zoom = focusLoc ? 7 : GTA_DEFAULT_ZOOM;
     } else {
       const realCenter: [number, number] = center
         ?? (focusLoc?.rlLat != null && focusLoc?.rlLng != null
@@ -95,10 +102,9 @@ export function LeafletMap({
     }
 
     const map = L.map(mapRef.current, mapOptions);
+    setCurrentZoom(map.getZoom());
 
-    // ── Tile layer ──
     if (isGame) {
-      // Use a custom TileLayer that builds the R2 tile URL
       const GtaTileLayer = L.TileLayer.extend({
         getTileUrl(coords: L.Coords) {
           return gtaTileUrl(GTA_TILESET, coords.z, coords.x, coords.y);
@@ -123,78 +129,71 @@ export function LeafletMap({
       }).addTo(map);
     }
 
-    // ── Pins ──
-    let maxPostCount = 0;
-    let maxMarker: L.CircleMarker | null = null;
+    const renderPins = (zoom: number) => {
+      markersRef.current.forEach(m => map.removeLayer(m));
+      markersRef.current = [];
 
-    for (const loc of locations) {
-      let latlng: [number, number] | null = null;
+      const zoomThreshold = isGame ? 6 : 13;
+      const showAll = zoom >= zoomThreshold;
 
-      if (isGame) {
-        if (loc.igX != null && loc.igY != null) latlng = [loc.igY, loc.igX];
-      } else {
-        if (loc.rlLat != null && loc.rlLng != null) latlng = [loc.rlLat, loc.rlLng];
+      let visibleLocs = locations;
+      if (!showAll) {
+        const sorted = [...locations].sort((a, b) =>
+          b.hotScore !== a.hotScore ? b.hotScore - a.hotScore : b.postCount - a.postCount
+        );
+        const top = sorted.slice(0, TOP_LOCATIONS_COUNT);
+        if (focusSlug && !top.find(l => l.slug === focusSlug)) {
+          const focused = locations.find(l => l.slug === focusSlug);
+          if (focused) top.push(focused);
+        }
+        visibleLocs = top;
       }
 
-      if (!latlng) continue;
-
-      const size = pinSize(loc.postCount);
-      const color = pinColor(loc.postCount);
-
-      const marker = L.circleMarker(latlng, {
-        radius: size / 2,
-        fillColor: color,
-        fillOpacity: 0.8,
-        color: "#fff",
-        weight: 2,
-      }).addTo(map);
-
-      if (loc.postCount > maxPostCount) {
-        maxPostCount = loc.postCount;
-        maxMarker = marker;
-      }
-
-      if (!mini) {
-        if (onPinClick) {
-          marker.on("click", () => onPinClick(loc));
+      for (const loc of visibleLocs) {
+        let latlng: [number, number] | null = null;
+        if (isGame) {
+          if (loc.igX != null && loc.igY != null) latlng = [loc.igY, loc.igX];
         } else {
-          marker.bindPopup(`
-            <div style="min-width: 180px; font-family: Inter, sans-serif;">
-              <h3 style="font-weight: 700; font-size: 14px; margin: 0 0 4px;">${loc.name}</h3>
-              <p style="color: #6b7280; font-size: 12px; margin: 0 0 8px;">${loc.postCount} posts</p>
-              <button
-                onclick="window.__filterFeed('${loc.slug}')"
-                style="width: 100%; padding: 6px 12px; background: #ff2442; color: white; border: none; border-radius: 9999px; font-size: 12px; font-weight: 700; cursor: pointer;"
-              >
-                Filter Home Feed
-              </button>
-            </div>
-          `);
+          if (loc.rlLat != null && loc.rlLng != null) latlng = [loc.rlLat, loc.rlLng];
+        }
+        if (!latlng) continue;
+
+        const isFocused = loc.slug === focusSlug;
+        const icon = L.divIcon({
+          html: createPinHTML(loc, isFocused),
+          className: '',
+          iconSize: [40, 40],
+          iconAnchor: [20, 40],
+        });
+
+        const marker = L.marker(latlng, { icon }).addTo(map);
+        markersRef.current.push(marker);
+
+        if (!mini && onPinClick) {
+          marker.on("click", () => {
+            onPinClick(loc);
+            map.flyTo(latlng, isGame ? 7 : 14, { duration: 0.5 });
+          });
         }
       }
-    }
+    };
 
-    // Animated ping on highest-activity pin
-    if (maxMarker && !mini) {
-      const latlng = maxMarker.getLatLng();
-      const ping = L.circleMarker(latlng, {
-        radius: 20,
-        fillColor: "#ff2442",
-        fillOpacity: 0.3,
-        color: "#ff2442",
-        weight: 1,
-        className: "animate-ping",
-      }).addTo(map);
-      setTimeout(() => map.removeLayer(ping), 3000);
+    renderPins(map.getZoom());
+    map.on('zoomend', () => {
+      const z = map.getZoom();
+      setCurrentZoom(z);
+      renderPins(z);
+    });
+
+    if (!mini && onPinClick) {
+      map.on('click', (e) => {
+        if (e.originalEvent.target === map.getContainer()) {
+          onPinClick(null as unknown as MapLocation);
+        }
+      });
     }
 
     mapInstanceRef.current = map;
-
-    if (!mini) {
-      (window as unknown as Record<string, unknown>).__filterFeed = (slug: string) => {
-        router.push(`/?location=${slug}`);
-      };
-    }
 
     return () => {
       map.remove();
