@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1015.0",
+    "@next/bundle-analyzer": "^16.2.1",
     "@tailwindcss/postcss": "^4",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^20",

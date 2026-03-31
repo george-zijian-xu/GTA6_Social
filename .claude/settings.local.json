@@ -34,7 +34,8 @@
       "WebFetch(domain:api.github.com)",
       "Bash(git log:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(lsof -ti:3000)"
+      "Bash(lsof -ti:3000)",
+      "Bash(find docs:*)"
     ]
   },
   "enabledMcpjsonServers": [

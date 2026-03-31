@@ -54,7 +54,7 @@ const VERSION = 6;
 const SOURCE_BASE = "https://map.gtadb.org/tiles";
 const DELAY_MS = 50; // ms between requests
 export const R2_PUBLIC_URL =
-  process.env.R2_PUBLIC_URL ?? "https://pub-d0df40b4d0de47d0a484485731f09b6b.r2.dev";
+  process.env.R2_PUBLIC_URL ?? "https://tiles.gta-social.com"; // was previously "https://pub-d0df40b4d0de47d0a484485731f09b6b.r2.dev";
 
 // ─── Pure helpers (unit-testable) ────────────────────────────────────────────
 
