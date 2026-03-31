@@ -52,6 +52,7 @@ body {
 .masonry-grid_column {
   padding-left: 1.5rem;
   background-clip: padding-box;
+  width: 100%;
 }
 .masonry-grid_column > * {
   margin-bottom: 1.5rem;

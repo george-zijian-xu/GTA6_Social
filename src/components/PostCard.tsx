@@ -2,14 +2,16 @@ import Link from "next/link";
 import Image from "next/image";
 import type { FeedPost } from "@/lib/feed";
 import { LikeButton } from "@/components/LikeButton";
+import { logImageLoad } from "@/lib/home-perf-log";
 
 interface PostCardProps {
   post: FeedPost;
   priority?: boolean;
+  shouldLogImagePerf?: boolean;
   userId?: string | null;
 }
 
-export function PostCard({ post, priority = false, userId = null }: PostCardProps) {
+export function PostCard({ post, priority = false, shouldLogImagePerf = false, userId = null }: PostCardProps) {
   const imageUrl = post.imagePath
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${post.imagePath}`
     : null;
@@ -19,15 +21,30 @@ export function PostCard({ post, priority = false, userId = null }: PostCardProp
       {/* Image */}
       <Link href={`/posts/${post.slug}`}>
         {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={post.imageAlt ?? post.caption.slice(0, 80)}
-            width={post.imageWidth ?? 1200}
-            height={post.imageHeight ?? 900}
-            className="w-full h-auto"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-            priority={priority}
-          />
+          <div
+            style={{
+              aspectRatio: post.imageWidth && post.imageHeight
+                ? `${post.imageWidth} / ${post.imageHeight}`
+                : '4 / 3',
+              position: 'relative',
+            }}
+          >
+            <Image
+              src={imageUrl}
+              alt={post.imageAlt ?? post.caption.slice(0, 80)}
+              width={post.imageWidth ?? 1200}
+              height={post.imageHeight ?? 900}
+              className="w-full h-full object-cover"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 45vw, (max-width: 1280px) 30vw, 22vw"
+              priority={priority}
+              loading={priority ? undefined : 'lazy'}
+              fetchPriority={priority ? 'high' : undefined}
+              onLoad={shouldLogImagePerf
+                ? (e) => logImageLoad(post.id, priority, post.imageWidth, post.imageHeight, e)
+                : undefined
+              }
+            />
+          </div>
         ) : (
           <div className="aspect-[4/3] w-full bg-surface-secondary dark:bg-[#2a2a2a] flex items-center justify-center">
             <span className="material-symbols-outlined text-[32px] text-foreground-muted">

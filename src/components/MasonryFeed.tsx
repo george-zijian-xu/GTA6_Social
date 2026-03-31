@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Masonry from "react-masonry-css";
 import { PostCard } from "./PostCard";
 import { fetchFeedPageClient, type FeedPost, type FeedCursor } from "@/lib/feed";
+import { perfLog, initPerfObserver, sampleMasonryStability } from "@/lib/home-perf-log";
 
 interface MasonryFeedProps {
   initialPosts: FeedPost[];
@@ -24,6 +25,20 @@ export function MasonryFeed({ initialPosts, initialCursor, userId = null }: Maso
   const [cursor, setCursor] = useState(initialCursor);
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const masonryRef = useRef<HTMLDivElement>(null);
+
+  // Attach perf observers once on mount
+  useEffect(() => {
+    perfLog("MasonryFeed mounted", { postCount: initialPosts.length });
+    initPerfObserver();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // After initial client render committed — sample masonry layout stability for ~1 second
+  useEffect(() => {
+    if (!masonryRef.current) return;
+    perfLog("initial client render committed", { postCount: posts.length });
+    sampleMasonryStability(masonryRef.current);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     try {
@@ -76,17 +91,30 @@ export function MasonryFeed({ initialPosts, initialCursor, userId = null }: Maso
     );
   }
 
+  // Index of the first post that has an image — that is the LCP candidate.
+  const firstImageIndex = posts.findIndex((p) => p.imagePath !== null);
+
   return (
     <>
-      <Masonry
-        breakpointCols={breakpointColumns}
-        className="masonry-grid"
-        columnClassName="masonry-grid_column"
-      >
-        {posts.map((post, index) => (
-          <PostCard key={post.id} post={post} priority={index < 3} userId={userId} />
-        ))}
-      </Masonry>
+      <div ref={masonryRef}>
+        <Masonry
+          breakpointCols={breakpointColumns}
+          className="masonry-grid"
+          columnClassName="masonry-grid_column"
+        >
+          {posts.map((post, index) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              // Only the first card with an image gets priority — deterministic above-the-fold LCP candidate
+              priority={index === firstImageIndex}
+              // Log image load only for initial viewport cards to keep telemetry focused
+              shouldLogImagePerf={index < 6}
+              userId={userId}
+            />
+          ))}
+        </Masonry>
+      </div>
 
       {/* Sentinel for infinite scroll */}
       <div ref={sentinelRef}>
