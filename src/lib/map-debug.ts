@@ -1,5 +1,5 @@
 // Dev-only performance logger for map debugging
-const MAP_DEBUG = process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_MAP_DEBUG === "1";
+const MAP_DEBUG = process.env.NEXT_PUBLIC_MAP_DEBUG === "1";
 
 const startTime = typeof performance !== "undefined" ? performance.now() : 0;
 
