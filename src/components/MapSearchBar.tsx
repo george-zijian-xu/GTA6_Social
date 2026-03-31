@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -16,6 +16,8 @@ export function MapSearchBar({ currentLayer, onLocationSelect }: MapSearchBarPro
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const supabase = useMemo(() => createClient(), []);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -32,14 +34,22 @@ export function MapSearchBar({ currentLayer, onLocationSelect }: MapSearchBarPro
       setLocations([]);
       return;
     }
-    const supabase = createClient();
-    supabase
-      .from("locations")
-      .select("id, name, slug")
-      .ilike("name", `%${query}%`)
-      .limit(8)
-      .then(({ data }) => setLocations(data ?? []));
-  }, [query]);
+    const id = ++requestIdRef.current;
+    const timer = setTimeout(() => {
+      supabase
+        .from("locations")
+        .select("id, name, slug")
+        .ilike("name", `%${query}%`)
+        .limit(8)
+        .then(({ data }) => {
+          // Discard stale responses — only apply if this is still the latest request
+          if (id === requestIdRef.current) {
+            setLocations(data ?? []);
+          }
+        });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query, supabase]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

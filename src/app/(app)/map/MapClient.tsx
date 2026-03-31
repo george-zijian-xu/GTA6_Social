@@ -1,20 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import dynamic from "next/dynamic";
 import type { MapLocation } from "@/lib/locations";
 import { MapBottomPanel } from "@/components/MapBottomPanel";
 import { MapSearchBar } from "@/components/MapSearchBar";
-
-const LeafletMap = dynamic(() => import("@/components/LeafletMap").then((m) => m.LeafletMap), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-surface-base dark:bg-[#0a0a0a]">
-      <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-primary rounded-full animate-spin" />
-    </div>
-  ),
-});
+import { LeafletMap } from "@/components/LeafletMap";
 
 interface MapClientProps {
   locations: MapLocation[];
@@ -40,7 +31,7 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
     router.replace(`/map?${params.toString()}`, { scroll: false });
   };
 
-  const handlePinClick = (loc: MapLocation | null) => {
+  const handlePinClick = useCallback((loc: MapLocation | null) => {
     if (!loc) {
       setFocusedSlug(undefined);
       setSelectedLocation(null);
@@ -55,7 +46,7 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
       params.set("layer", layer);
       router.replace(`/map?${params.toString()}`, { scroll: false });
     }
-  };
+  }, [searchParams, layer, router]);
 
   const handleSearchSelect = (loc: { id: string; name: string; slug: string } | null) => {
     if (!loc) return;
