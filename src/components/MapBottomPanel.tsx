@@ -19,14 +19,24 @@ export function MapBottomPanel({ location, currentLayer, onLayerToggle }: MapBot
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     if (!location) { setPosts([]); return; }
+    const id = ++requestIdRef.current;
     setLoading(true);
     fetch(`/api/map-posts?location=${location.slug}`)
       .then((r) => r.json())
-      .then((data) => setPosts(data.posts ?? []))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        if (id === requestIdRef.current) {
+          setPosts(data.posts ?? []);
+        }
+      })
+      .finally(() => {
+        if (id === requestIdRef.current) {
+          setLoading(false);
+        }
+      });
   }, [location?.slug]);
 
   const updateScrollButtons = () => {
@@ -118,6 +128,7 @@ export function MapBottomPanel({ location, currentLayer, onLayerToggle }: MapBot
           {canScrollLeft && (
             <button
               onClick={() => scroll("left")}
+              aria-label="Scroll left"
               className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-[#2a2a2a] transition-colors"
             >
               <span className="material-symbols-outlined text-gray-700 dark:text-white">chevron_left</span>
@@ -127,6 +138,7 @@ export function MapBottomPanel({ location, currentLayer, onLayerToggle }: MapBot
           {canScrollRight && (
             <button
               onClick={() => scroll("right")}
+              aria-label="Scroll right"
               className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-[#2a2a2a] transition-colors"
             >
               <span className="material-symbols-outlined text-gray-700 dark:text-white">chevron_right</span>

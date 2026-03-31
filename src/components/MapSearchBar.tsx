@@ -104,6 +104,7 @@ export function MapSearchBar({ currentLayer, onLocationSelect }: MapSearchBarPro
           <button
             type="button"
             onClick={() => setMode("map")}
+            aria-label="Search on map"
             className={`p-1.5 rounded-full flex items-center justify-center transition-colors ${
               mode === "map"
                 ? "bg-white dark:bg-gray-700 shadow-sm text-primary"
@@ -115,6 +116,7 @@ export function MapSearchBar({ currentLayer, onLocationSelect }: MapSearchBarPro
           <button
             type="button"
             onClick={() => setMode("feed")}
+            aria-label="Search in feed"
             className={`p-1.5 rounded-full flex items-center justify-center transition-colors ${
               mode === "feed"
                 ? "bg-white dark:bg-gray-700 shadow-sm text-primary"

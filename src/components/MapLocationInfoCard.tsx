@@ -55,6 +55,7 @@ export function MapLocationInfoCard({ location, currentLayer, onLayerToggle }: M
           <div className="flex p-0.5 bg-gray-100 dark:bg-white/10 rounded-full scale-90 origin-right flex-shrink-0">
             <button
               onClick={() => onLayerToggle("game")}
+              aria-label="Switch to game map"
               className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider transition-colors ${
                 currentLayer === "game" ? "bg-primary text-white shadow-sm" : "text-gray-400"
               }`}
@@ -63,6 +64,7 @@ export function MapLocationInfoCard({ location, currentLayer, onLayerToggle }: M
             </button>
             <button
               onClick={() => onLayerToggle("real")}
+              aria-label="Switch to real life map"
               className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider transition-colors ${
                 currentLayer === "real" ? "bg-primary text-white shadow-sm" : "text-gray-400"
               }`}

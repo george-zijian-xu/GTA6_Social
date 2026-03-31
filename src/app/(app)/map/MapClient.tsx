@@ -91,6 +91,7 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
       <div className="absolute top-4 right-4 z-1000 flex rounded-xl overflow-hidden shadow-lg border border-foreground/10 bg-surface-card dark:bg-[#1e1e1e]">
         <button
           onClick={() => handleLayerChange("game")}
+          aria-label="Switch to Leonida game map"
           className={`px-3 py-2 text-xs font-bold transition-colors ${
             layer === "game" ? "bg-primary text-white" : "text-foreground-muted hover:text-foreground"
           }`}
@@ -100,6 +101,7 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
         </button>
         <button
           onClick={() => handleLayerChange("real")}
+          aria-label="Switch to Florida real map"
           className={`px-3 py-2 text-xs font-bold transition-colors ${
             layer === "real" ? "bg-primary text-white" : "text-foreground-muted hover:text-foreground"
           }`}

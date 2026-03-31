@@ -14,6 +14,7 @@ import {
   GTA_MAX_NATIVE_ZOOM,
   GTA_DEFAULT_CENTER,
 } from "@/lib/gta-crs";
+import { logMapPerf } from "@/lib/map-debug";
 
 interface LeafletMapProps {
   locations: MapLocation[];
@@ -76,6 +77,8 @@ export function LeafletMap({
   const onPinClickRef = useRef(onPinClick);
   const router = useRouter();
   const [currentZoom, setCurrentZoom] = useState<number>(0);
+  const tilesStartedRef = useRef(false);
+  const [, forceUpdate] = useState({});
 
   // Keep onPinClick ref current without triggering marker rebuilds
   useEffect(() => { onPinClickRef.current = onPinClick; }, [onPinClick]);
@@ -100,9 +103,12 @@ export function LeafletMap({
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
     let cancelled = false;
+    logMapPerf("mount start", { layer, focusSlug });
 
     (async () => {
+      logMapPerf("Leaflet import start");
       const L = (await import("leaflet")).default;
+      logMapPerf("Leaflet import resolved");
       if (cancelled || !mapRef.current) return;
       leafletRef.current = L;
 
@@ -134,6 +140,7 @@ export function LeafletMap({
 
       const map = L.map(mapRef.current, mapOptions);
       setCurrentZoom(map.getZoom());
+      logMapPerf("map instance created", { zoom: map.getZoom(), center: mapOptions.center });
 
       if (isGame) {
         const GtaTileLayer = L.TileLayer.extend({
@@ -142,7 +149,7 @@ export function LeafletMap({
           },
         });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        new (GtaTileLayer as any)("", {
+        const tileLayer = new (GtaTileLayer as any)("", {
           minZoom: GTA_MIN_ZOOM,
           maxZoom: GTA_MAX_ZOOM,
           maxNativeZoom: GTA_MAX_NATIVE_ZOOM,
@@ -151,7 +158,33 @@ export function LeafletMap({
           bounds: L.latLngBounds([-16384, -16384], [16384, 16384]),
           noWrap: true,
           attribution: 'GTA VI map tiles — community data via <a href="https://map.gtadb.org">gtadb.org</a>',
-        }).addTo(map);
+        });
+
+        // Attach tile event listeners before adding to map
+        let firstTileStart = true;
+        let firstTileLoad = true;
+        tileLayer.on('tileloadstart', (e: L.TileEvent) => {
+          if (firstTileStart) {
+            logMapPerf("first tileloadstart", { coords: e.coords });
+            tilesStartedRef.current = true;
+            forceUpdate({});
+            firstTileStart = false;
+          }
+        });
+        tileLayer.on('tileload', (e: L.TileEvent) => {
+          if (firstTileLoad) {
+            logMapPerf("first tileload", { coords: e.coords });
+            firstTileLoad = false;
+          }
+        });
+        tileLayer.on('tileerror', (e: L.TileErrorEvent) => {
+          logMapPerf("tileerror", { coords: e.coords, url: (e.tile as HTMLImageElement).src });
+        });
+        tileLayer.on('loading', () => logMapPerf("tile layer loading"));
+        tileLayer.on('load', () => logMapPerf("tile layer load complete"));
+
+        tileLayer.addTo(map);
+        logMapPerf("GTA tile layer added");
       } else {
         const tile = L.tileLayer(isDark ? CARTO_DARK : CARTO_LIGHT, {
           attribution: CARTO_ATTRIBUTION,
@@ -159,6 +192,7 @@ export function LeafletMap({
           subdomains: "abcd",
         }).addTo(map);
         tileLayerRef.current = tile;
+        logMapPerf("real tile layer added");
       }
 
       map.on('zoomend', () => setCurrentZoom(map.getZoom()));
@@ -226,14 +260,18 @@ export function LeafletMap({
     const map = mapInstanceRef.current;
     const L = leafletRef.current;
     if (!map || !L || locations.length === 0) return;
+
     const markerMap = markersRef.current;
     const isGame = layer === "game";
+
+    let removed = 0, added = 0, updated = 0;
 
     // Remove markers no longer visible
     for (const [slug, marker] of markerMap) {
       if (!visibleSlugs.has(slug)) {
         map.removeLayer(marker);
         markerMap.delete(slug);
+        removed++;
       }
     }
 
@@ -251,6 +289,11 @@ export function LeafletMap({
       const loc = locationsBySlug.get(slug);
       if (!loc) continue;
 
+      const isFocused = loc.slug === focusSlug;
+
+      // Defer non-focused markers until tiles start (game map only)
+      if (isGame && !isFocused && !tilesStartedRef.current) continue;
+
       let latlng: [number, number] | null = null;
       if (isGame) {
         if (loc.igX != null && loc.igY != null) latlng = [loc.igY, loc.igX];
@@ -259,7 +302,6 @@ export function LeafletMap({
       }
       if (!latlng) continue;
 
-      const isFocused = loc.slug === focusSlug;
       const existing = markerMap.get(slug);
 
       if (existing) {
@@ -271,6 +313,7 @@ export function LeafletMap({
             iconSize: [40, 40],
             iconAnchor: [20, 40],
           }));
+          updated++;
         }
       } else {
         // Create new marker
@@ -283,6 +326,7 @@ export function LeafletMap({
 
         const marker = L.marker(latlng, { icon }).addTo(map);
         markerMap.set(slug, marker);
+        added++;
 
         if (!mini) {
           marker.on("click", () => {
@@ -291,6 +335,15 @@ export function LeafletMap({
         }
       }
     }
+
+    logMapPerf("marker sync complete", {
+      visible: visibleSlugs.size,
+      added,
+      removed,
+      updated,
+      focusChanged,
+      focusSlug
+    });
 
     prevFocusRef.current = focusSlug;
   }, [visibleSlugs, focusSlug, locations, locationsBySlug, layer, mini]);
@@ -303,11 +356,14 @@ export function LeafletMap({
     // Skip the initial mount — the map is already centered via init options
     if (prevFlyToRef.current === undefined) {
       prevFlyToRef.current = focusSlug;
+      logMapPerf("focus initial (skip flyTo)", { focusSlug });
       return;
     }
     // Skip if focus hasn't actually changed
     if (prevFlyToRef.current === focusSlug) return;
     prevFlyToRef.current = focusSlug;
+
+    logMapPerf("focus change received", { focusSlug });
 
     const loc = locationsBySlug.get(focusSlug);
     if (!loc) return;
@@ -322,7 +378,9 @@ export function LeafletMap({
     if (latlng) {
       const targetZoom = isGame ? 7 : 14;
       const currentZoom = map.getZoom();
+      logMapPerf("flyTo start", { latlng, targetZoom });
       map.flyTo(latlng, Math.max(currentZoom, targetZoom), { duration: 0.5 });
+      map.once('moveend', () => logMapPerf("flyTo end"));
     }
   }, [focusSlug, locationsBySlug, layer, mini]);
 
