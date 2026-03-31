@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Masonry from "react-masonry-css";
 import { PostCard } from "./PostCard";
 import { fetchFeedPageClient, type FeedPost, type FeedCursor } from "@/lib/feed";
-import { perfLog, initPerfObserver, sampleMasonryStability } from "@/lib/home-perf-log";
+import { perfLog, initPerfObserver, sampleMasonryStability, observeInitialViewport, resetHomePerfSession } from "@/lib/home-perf-log";
 
 interface MasonryFeedProps {
   initialPosts: FeedPost[];
@@ -29,6 +29,7 @@ export function MasonryFeed({ initialPosts, initialCursor, userId = null }: Maso
 
   // Attach perf observers once on mount
   useEffect(() => {
+    resetHomePerfSession();
     perfLog("MasonryFeed mounted", { postCount: initialPosts.length });
     initPerfObserver();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -38,6 +39,7 @@ export function MasonryFeed({ initialPosts, initialCursor, userId = null }: Maso
     if (!masonryRef.current) return;
     perfLog("initial client render committed", { postCount: posts.length });
     sampleMasonryStability(masonryRef.current);
+    observeInitialViewport(masonryRef.current);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -92,7 +94,7 @@ export function MasonryFeed({ initialPosts, initialCursor, userId = null }: Maso
   }
 
   // Index of the first post that has an image — that is the LCP candidate.
-  const firstImageIndex = posts.findIndex((p) => p.imagePath !== null);
+  const firstImageIndex = posts.findIndex((p) => !!p.imagePath);
 
   return (
     <>
@@ -106,10 +108,8 @@ export function MasonryFeed({ initialPosts, initialCursor, userId = null }: Maso
             <PostCard
               key={post.id}
               post={post}
-              // Only the first card with an image gets priority — deterministic above-the-fold LCP candidate
+              cardIndex={index}
               priority={index === firstImageIndex}
-              // Log image load only for initial viewport cards to keep telemetry focused
-              shouldLogImagePerf={index < 6}
               userId={userId}
             />
           ))}

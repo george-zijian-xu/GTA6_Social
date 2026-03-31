@@ -7,17 +7,22 @@ import { logImageLoad } from "@/lib/home-perf-log";
 interface PostCardProps {
   post: FeedPost;
   priority?: boolean;
-  shouldLogImagePerf?: boolean;
+  cardIndex?: number;
   userId?: string | null;
 }
 
-export function PostCard({ post, priority = false, shouldLogImagePerf = false, userId = null }: PostCardProps) {
+export function PostCard({ post, priority = false, cardIndex, userId = null }: PostCardProps) {
   const imageUrl = post.imagePath
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${post.imagePath}`
     : null;
 
   return (
-    <article className="bg-surface-card dark:bg-[#1e1e1e] rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300">
+    <article
+      className="bg-surface-card dark:bg-[#1e1e1e] rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300"
+      data-post-id={post.id}
+      data-card-index={cardIndex}
+      data-has-image={!!imageUrl}
+    >
       {/* Image */}
       <Link href={`/posts/${post.slug}`}>
         {imageUrl ? (
@@ -39,10 +44,10 @@ export function PostCard({ post, priority = false, shouldLogImagePerf = false, u
               priority={priority}
               loading={priority ? undefined : 'lazy'}
               fetchPriority={priority ? 'high' : undefined}
-              onLoad={shouldLogImagePerf
-                ? (e) => logImageLoad(post.id, priority, post.imageWidth, post.imageHeight, e)
-                : undefined
-              }
+              data-post-id={post.id}
+              data-card-index={cardIndex}
+              data-had-priority={priority ? "true" : "false"}
+              onLoad={(e) => logImageLoad(post.id, priority, post.imageWidth, post.imageHeight, e)}
             />
           </div>
         ) : (
