@@ -13,10 +13,14 @@ export function MapLocationInfoCard({ location, currentLayer, onLayerToggle }: M
   const [hotScore, setHotScore] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch(`/api/location-hot-score?id=${location.id}`)
+    const controller = new AbortController();
+    fetch(`/api/location-hot-score?id=${location.id}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => setHotScore(data.score ?? 0))
-      .catch(() => setHotScore(0));
+      .catch((err) => {
+        if (err.name !== 'AbortError') setHotScore(0);
+      });
+    return () => controller.abort();
   }, [location.id]);
 
   const displayName = location.name || location.address || "Unknown Location";
@@ -81,8 +85,8 @@ export function MapLocationInfoCard({ location, currentLayer, onLayerToggle }: M
           </div>
           <div className="h-1.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
             <div
-              className="h-full bg-primary transition-all"
-              style={{ width: hotScore ? `${Math.min(100, (hotScore / 100) * 100)}%` : "0%" }}
+              className="h-full bg-primary transition-transform origin-left"
+              style={{ transform: hotScore !== null ? `scaleX(${Math.min(1, hotScore / 100)})` : "scaleX(0)" }}
             />
           </div>
         </div>

@@ -319,7 +319,11 @@ export function LeafletMap({
     } else {
       if (loc.rlLat != null && loc.rlLng != null) latlng = [loc.rlLat, loc.rlLng];
     }
-    if (latlng) map.flyTo(latlng, isGame ? 7 : 14, { duration: 0.5 });
+    if (latlng) {
+      const targetZoom = isGame ? 7 : 14;
+      const currentZoom = map.getZoom();
+      map.flyTo(latlng, Math.max(currentZoom, targetZoom), { duration: 0.5 });
+    }
   }, [focusSlug, locationsBySlug, layer, mini]);
 
   return (
