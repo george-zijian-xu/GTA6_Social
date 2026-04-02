@@ -88,6 +88,19 @@ export function MapLocationInfoCard({ location, currentLayer, onLayerToggle, com
             </button>
           </div>
         )}
+
+        <button
+          onClick={() => {
+            const toast = document.createElement("div");
+            toast.textContent = "Coming soon! 🚧";
+            toast.className = "fixed top-4 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg z-[9999]";
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+          }}
+          className="w-full py-2 mt-2 bg-primary text-white rounded-xl font-bold uppercase text-[9px] tracking-[0.2em] shadow-lg shadow-primary/20 hover:bg-red-600 transition-all active:scale-[0.98]"
+        >
+          Explore More
+        </button>
       </div>
     );
   }

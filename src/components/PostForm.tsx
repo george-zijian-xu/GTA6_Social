@@ -35,10 +35,12 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
   const [images, setImages] = useState<ImagePreview[]>([]);
   const [locationId, setLocationId] = useState<string | null>(null);
   const [locationSearch, setLocationSearch] = useState("");
-  const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
+  const [locations, setLocations] = useState<{ id: string; name: string; ig_x: number | null; ig_y: number | null; rl_lat: number | null; rl_lng: number | null }[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<{ ig_x: number | null; ig_y: number | null; rl_lat: number | null; rl_lng: number | null } | null>(null);
   const [showLocations, setShowLocations] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [posted, setPosted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -108,7 +110,7 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
     const supabase = createClient();
     const { data } = await supabase
       .from("locations")
-      .select("id, name")
+      .select("id, name, ig_x, ig_y, rl_lat, rl_lng")
       .ilike("name", `%${query}%`)
       .limit(10);
     setLocations(data ?? []);
@@ -125,6 +127,20 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
     if (!postType) {
       setError("Choose a post type.");
       return;
+    }
+
+    // Validate location coords match post type (only when a location is selected)
+    if (locationId && selectedLocation) {
+      const needsGame = postType === "GG" || postType === "RG";
+      const needsReal = postType === "GR" || postType === "RR";
+      if (needsGame && (selectedLocation.ig_x == null || selectedLocation.ig_y == null)) {
+        setError("This location has no in-game coordinates. Use G/R or R/R post type instead.");
+        return;
+      }
+      if (needsReal && (selectedLocation.rl_lat == null || selectedLocation.rl_lng == null)) {
+        setError("This location has no real-world coordinates. Use G/G or R/G post type instead.");
+        return;
+      }
     }
     if (containsProfanity(trimmedCaption) || containsProfanity(trimmedTitle)) {
       setError("Your post contains inappropriate language. Please revise.");
@@ -179,9 +195,12 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
         return;
       }
 
-      if (onClose) onClose();
-      router.push(`/posts/${result.slug}`);
-      router.refresh();
+      setPosted(true);
+      setTimeout(() => {
+        if (onClose) onClose();
+        router.push(`/posts/${result.slug}`);
+        router.refresh();
+      }, 800);
     } catch (err) {
       setError(`Failed to publish. ${err instanceof Error ? err.message : "Please try again."}`);
     } finally {
@@ -343,6 +362,7 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
                         onClick={() => {
                           setLocationId(loc.id);
                           setLocationSearch(loc.name);
+                          setSelectedLocation({ ig_x: loc.ig_x, ig_y: loc.ig_y, rl_lat: loc.rl_lat, rl_lng: loc.rl_lng });
                           setShowLocations(false);
                         }}
                         className="w-full text-left px-3 py-2 text-sm hover:bg-surface-secondary dark:hover:bg-white/5 transition-colors"
@@ -354,7 +374,7 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
                 )}
                 {locationId && (
                   <button
-                    onClick={() => { setLocationId(null); setLocationSearch(""); setShowLocations(false); }}
+                    onClick={() => { setLocationId(null); setLocationSearch(""); setSelectedLocation(null); setShowLocations(false); }}
                     className="text-xs text-primary"
                   >
                     Clear location
@@ -378,7 +398,7 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
           disabled={submitting || (!caption.trim() && !title.trim()) || !postType}
           className="w-full bg-primary text-white rounded-2xl py-4 text-sm font-bold tracking-wide shadow-lg shadow-primary/30 hover:bg-primary-hover transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
         >
-          {submitting ? "Publishing..." : "Publish Now"}
+          {submitting ? "Publishing..." : posted ? "Posted! Redirecting..." : "Publish Now"}
         </button>
       </div>
     </div>
