@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 export function ShareButton() {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [discordHint, setDiscordHint] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,8 +39,13 @@ export function ShareButton() {
     setOpen(false);
   }
 
-  function shareToDiscord() {
-    copyLink();
+  async function shareToDiscord() {
+    await navigator.clipboard.writeText(window.location.href);
+    setDiscordHint(true);
+    setTimeout(() => {
+      setDiscordHint(false);
+      setOpen(false);
+    }, 2500);
   }
 
   function shareToTelegram() {
@@ -59,7 +65,7 @@ export function ShareButton() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-48 bg-surface-secondary rounded-xl shadow-lg border border-border overflow-hidden z-50">
+        <div className="absolute right-0 bottom-full mb-2 w-56 bg-surface-secondary rounded-xl shadow-lg border border-border overflow-hidden z-50">
           <button
             onClick={copyLink}
             className="w-full px-4 py-2.5 text-left text-sm hover:bg-surface-tertiary transition-colors flex items-center gap-3"
@@ -86,7 +92,14 @@ export function ShareButton() {
             className="w-full px-4 py-2.5 text-left text-sm hover:bg-surface-tertiary transition-colors flex items-center gap-3"
           >
             <span className="material-symbols-outlined text-[18px]">chat</span>
-            Share to Discord
+            <span className="flex flex-col">
+              <span>Share to Discord</span>
+              {discordHint && (
+                <span className="text-xs text-foreground-muted leading-tight">
+                  Link copied — paste it in Discord
+                </span>
+              )}
+            </span>
           </button>
           <button
             onClick={shareToTelegram}
