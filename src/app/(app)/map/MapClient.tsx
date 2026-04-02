@@ -21,7 +21,9 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
   const [layer, setLayer] = useState<"game" | "real">(initialLayer);
   const [isDark, setIsDark] = useState(false);
   const [focusedSlug, setFocusedSlug] = useState<string | undefined>(initialFocusSlug);
-  const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(() =>
+    initialFocusSlug ? (locations.find((l) => l.slug === initialFocusSlug) ?? null) : null
+  );
 
   const handleLayerChange = (newLayer: "game" | "real") => {
     setLayer(newLayer);
@@ -55,6 +57,22 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
   };
 
   useEffect(() => {
+    if (!initialFocusSlug) {
+      setFocusedSlug(undefined);
+      setSelectedLocation(null);
+      return;
+    }
+    const loc = locations.find((l) => l.slug === initialFocusSlug);
+    if (loc) {
+      setFocusedSlug(initialFocusSlug);
+      setSelectedLocation(loc);
+    } else {
+      setFocusedSlug(undefined);
+      setSelectedLocation(null);
+    }
+  }, [initialFocusSlug, locations]);
+
+  useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains("dark"));
@@ -62,16 +80,6 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
     observer.observe(document.documentElement, { attributeFilter: ["class"] });
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (initialFocusSlug) {
-      const loc = locations.find((l) => l.slug === initialFocusSlug);
-      if (loc) {
-        setFocusedSlug(initialFocusSlug);
-        setSelectedLocation(loc);
-      }
-    }
-  }, [initialFocusSlug, locations]);
 
   return (
     <div className="relative w-full h-full overflow-hidden">
@@ -88,7 +96,7 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
         onPinClick={handlePinClick}
       />
 
-      <div className="absolute top-4 right-4 z-1000 flex rounded-xl overflow-hidden shadow-lg border border-foreground/10 bg-surface-card dark:bg-[#1e1e1e]">
+      <div className="absolute top-16 md:top-4 right-4 z-1000 flex rounded-xl overflow-hidden shadow-lg border border-foreground/10 bg-surface-card dark:bg-[#1e1e1e]">
         <button
           onClick={() => handleLayerChange("game")}
           aria-label="Switch to Leonida game map"
@@ -96,8 +104,8 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
             layer === "game" ? "bg-primary text-white" : "text-foreground-muted hover:text-foreground"
           }`}
         >
-          <span className="material-symbols-outlined text-[16px] align-middle mr-1">sports_esports</span>
-          Leonida
+          <span className="material-symbols-outlined text-[16px] align-middle md:mr-1">sports_esports</span>
+          <span className="hidden md:inline">Leonida</span>
         </button>
         <button
           onClick={() => handleLayerChange("real")}
@@ -106,8 +114,8 @@ export function MapClient({ locations, focusSlug: initialFocusSlug }: MapClientP
             layer === "real" ? "bg-primary text-white" : "text-foreground-muted hover:text-foreground"
           }`}
         >
-          <span className="material-symbols-outlined text-[16px] align-middle mr-1">public</span>
-          Florida
+          <span className="material-symbols-outlined text-[16px] align-middle md:mr-1">public</span>
+          <span className="hidden md:inline">Florida</span>
         </button>
       </div>
 
