@@ -16,15 +16,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient();
   const location = await getLocationBySlug(slug, supabase);
 
-  if (!location) return { title: "Location not found" };
+  if (!location) return { title: "Location not found", robots: { index: false } };
 
-  const canonicalUrl = `https://grandtheftauto6.com/locations/${slug}`;
+  const canonicalUrl = `https://gta-social.com/locations/${slug}`;
 
   return {
     title: `Posts from ${location.name}`,
-    description: `Explore ${location.postCount} posts tagged at ${location.name} on Leonida Social.`,
+    description: `Explore ${location.postCount} posts tagged at ${location.name} on GTA Social.`,
     alternates: { canonical: canonicalUrl },
     openGraph: { url: canonicalUrl, type: "website" },
+    robots: { index: false, follow: false },
   };
 }
 
@@ -48,7 +49,7 @@ export default async function LocationPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "Place",
     name: location.name,
-    url: `https://grandtheftauto6.com/locations/${slug}`,
+    url: `https://gta-social.com/locations/${slug}`,
   };
 
   return (

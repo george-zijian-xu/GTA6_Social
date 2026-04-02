@@ -67,8 +67,8 @@ export function MapBottomPanel({ location, currentLayer, onLayerToggle }: MapBot
   if (!location) return null;
 
   return (
-    <div className="absolute bottom-10 left-10 right-10 z-[999] pointer-events-none">
-      <div className="relative flex items-end gap-6 w-full max-w-full">
+    <div className="absolute bottom-2 md:bottom-10 left-2 md:left-10 right-2 md:right-10 z-[999] pointer-events-none">
+      <div className="relative flex flex-col md:flex-row items-stretch md:items-end gap-3 md:gap-6 w-full max-w-full">
         <MapLocationInfoCard
           location={location}
           currentLayer={currentLayer}
@@ -83,15 +83,15 @@ export function MapBottomPanel({ location, currentLayer, onLayerToggle }: MapBot
           >
             {loading ? (
               [...Array(4)].map((_, i) => (
-                <div key={i} className="min-w-[240px] max-w-[240px] h-[320px] rounded-xl bg-white/50 dark:bg-white/5 animate-pulse" />
+                <div key={i} className="min-w-[180px] md:min-w-[240px] max-w-[180px] md:max-w-[240px] h-[240px] md:h-[320px] rounded-xl bg-white/50 dark:bg-white/5 animate-pulse" />
               ))
             ) : posts.length === 0 ? (
-              <div className="min-w-[240px] h-[320px] flex items-center justify-center bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-xl rounded-xl border border-white/40 dark:border-white/5">
-                <p className="text-sm text-gray-500 dark:text-gray-400">No posts yet</p>
+              <div className="min-w-[180px] md:min-w-[240px] h-[240px] md:h-[320px] flex items-center justify-center bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-xl rounded-xl border border-white/40 dark:border-white/5">
+                <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">No posts yet</p>
               </div>
             ) : (
               posts.map((post) => (
-                <Link key={post.id} href={`/posts/${post.slug}`} className="group min-w-[240px] max-w-[240px]">
+                <Link key={post.id} href={`/posts/${post.slug}`} className="group min-w-[180px] md:min-w-[240px] max-w-[180px] md:max-w-[240px]">
                   <div className="bg-white dark:bg-[#1e1e1e] rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.02] shadow-xl h-full flex flex-col border border-white/20 dark:border-white/5">
                     <div className="aspect-square overflow-hidden">
                       {post.imagePath ? (

@@ -6,9 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/admin/", "/auth/", "/_next/"],
+        disallow: ["/api/", "/admin/", "/auth/", "/notifications", "/profile", "/publish", "/search", "/privacy", "/dmca", "/locations", "/_next/"],
       },
     ],
-    sitemap: "https://grandtheftauto6.com/sitemap.xml",
+    sitemap: "https://gta-social.com/sitemap.xml",
   };
 }

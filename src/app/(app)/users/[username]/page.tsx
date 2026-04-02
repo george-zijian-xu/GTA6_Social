@@ -21,17 +21,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!profile) return { title: "User not found" };
 
-  const canonicalUrl = `https://grandtheftauto6.com/users/${username}`;
+  const canonicalUrl = `https://gta-social.com/users/${username}`;
+  const displayName = profile.displayName ?? profile.username;
+  const description = `Explore ${displayName}'s GTA 6 roleplay profile on GTA Social. Check out their latest posts, photos, and adventures across Vice City and Leonida.`.slice(0, 160);
 
   return {
-    title: `${profile.displayName ?? profile.username} (@${profile.username})`,
-    description: profile.bio ?? `${profile.username}'s profile on Leonida Social`,
+    title: `${displayName} (@${profile.username})`,
+    description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
       url: canonicalUrl,
       type: "profile",
-      firstName: profile.displayName ?? profile.username,
+      firstName: displayName,
       username: profile.username,
+      description,
     },
     twitter: { card: "summary" },
   };
@@ -63,7 +66,7 @@ export default async function UserProfilePage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "Person",
     name: profile.displayName ?? profile.username,
-    url: `https://grandtheftauto6.com/users/${profile.username}`,
+    url: `https://gta-social.com/users/${profile.username}`,
     description: profile.bio ?? undefined,
     image: profile.avatarUrl ?? undefined,
     interactionStatistic: [
@@ -148,6 +151,7 @@ export default async function UserProfilePage({ params }: Props) {
       </div>
 
       {/* Post grid */}
+      <h2 className="sr-only">Latest Posts from {profile.displayName ?? profile.username}</h2>
       <UserPostGrid posts={userPosts} userId={user?.id ?? null} />
     </div>
     </>

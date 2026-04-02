@@ -1,16 +1,16 @@
-# PRD: Leonida Social — Unofficial GTA6 Fan Community
+# PRD: GTA Social — Unofficial GTA6 Fan Community
 
 ## Problem Statement
 
 GTA 6 has no dedicated social platform where fans can share content, guides, and experiences from the perspective of in-game characters or Florida residents living in the fictional Leonida world. Existing platforms (Reddit, Twitter/X, Discord) are generic and do not provide the immersive, location-aware, roleplay-first experience that the GTA 6 community wants. Xiaohongshu (RedNote) pioneered a visual-first, card-feed social model that is ideal for this type of content — but no English-language fan site has adopted this format for GTA.
 
-Leonida Social is a non-commercial parody fan site that fills this gap: a Xiaohongshu-inspired social feed where users post as GTA 6 NPCs or Florida residents, pin their content to fictional Leonida locations on an interactive map, and discover content from the broader community.
+GTA Social is a fan site that fills this gap: a Xiaohongshu-inspired social feed where users post as GTA 6 NPCs or Florida residents, pin their content to fictional Leonida locations on an interactive map, and discover content from the broader community.
 
 ---
 
 ## Solution
 
-A web application at grandtheftauto6.com (and .net) — clearly branded as an unofficial fan parody, non-commercial — built with Next.js 15 (App Router) and Supabase. The site delivers:
+A web application at gta-social.com (and .net) — clearly branded as an unofficial fan parody — built with Next.js 15 (App Router) and Supabase. The site delivers:
 
 - A ranked, infinite-scroll masonry feed of user posts (images + captions)
 - Per-post detail pages with a media gallery, interactive GTA world map pin, flat comments with like/reply, and social actions
@@ -37,7 +37,7 @@ A web application at grandtheftauto6.com (and .net) — clearly branded as an un
 9. As a visitor using Google, I want to find individual posts on the search results page, so that guides and content from this site reach me organically.
 10. As a visitor, I want to see post-specific meta titles, descriptions, and preview images when a link is shared on social media or messaging apps, so that the content looks professional.
 11. As a visitor, I want to toggle between light and dark mode, so that I can read comfortably in any lighting condition.
-12. As a visitor, I want to access the About page to understand what Leonida Social is, so that I know this is an unofficial fan site and not affiliated with Rockstar Games.
+12. As a visitor, I want to access the About page to understand what GTA Social is, so that I know this is an unofficial fan site and not affiliated with Rockstar Games.
 13. As a visitor, I want to access the Privacy Policy page, so that I understand how my data is handled before signing up.
 14. As a visitor, I want to access the DMCA Takedown page, so that I can request removal of content that infringes on my copyright.
 15. As a visitor, I want to search for posts or users by keyword, so that I can find specific content without scrolling.
@@ -162,15 +162,27 @@ Supabase Storage bucket `post-images` (public read). Images uploaded via signed 
 
 ### SEO
 
-- `generateMetadata` on every dynamic route (`/posts/[slug]`, `/users/[username]`, `/locations/[slug]`)
-- Post pages: title = first 60 chars of caption + " | Leonida Social", description = caption truncated to 155 chars, OG image = first post image
+- `generateMetadata` on every dynamic route (`/posts/[slug]`, `/users/[username]`)
+- Post pages: title = `[caption] in [location] | GTA Social` (dynamic, max 60 chars), description = template with displayName + location (max 160 chars), OG image = first post image
+- User pages: title = `[DisplayName] (@username) | GTA Social`, description = template with displayName
+- Home/Map/About use `title: { absolute: "..." }` to prevent template doubling (titles already contain "GTA Social")
 - Structured data: `SocialMediaPosting` JSON-LD on post pages, `Person` JSON-LD on profile pages, `Place` JSON-LD on location pages
-- `sitemap.xml` dynamically generated, includes all public posts, user profiles, and location pages
-- `robots.txt` allows all crawlers on public routes, disallows `/api`, `/admin`, `/auth`
+- `sitemap.xml` dynamically generated: up to 1000 posts, 1000 users, 500 locations (ordered by created_at DESC)
+- `robots.txt` disallows: `/api/`, `/admin/`, `/auth/`, `/notifications`, `/profile`, `/publish`, `/search`, `/privacy`, `/dmca`, `/locations`, `/_next/`
+- Utility pages (notifications, admin, auth, search, privacy, dmca, locations) also carry `robots: { index: false }` in metadata
+- About page is indexed and crawlable — important SEO surface
+- Every page has H1 (sr-only if not in visual design); H2s added sr-only for semantic structure and internal linking on post pages
+- sr-only internal links on post pages: author profile, location posts, map
 - All images rendered with Next.js `<Image>` component (auto srcset, lazy loading, AVIF/WebP)
-- `alt` attributes auto-generated from post caption; stored in `post_images.alt_text`
-- Canonical `<link>` on every page
-- Internal links: post cards link to post detail, user profile, and location page
+- Canonical `<link>` on every public page
+
+### Favicon & Social Cards (DONE)
+
+- Favicon files in `src/app/`: `favicon.ico`, `icon.svg`, `icon.png` (96×96), `apple-icon.png`
+- PWA manifest at `src/app/manifest.ts` (Next.js route): name "GTA Social", theme `#ff2442`, icons at `public/web-app-manifest-{192,512}x512.png`
+- OG image at `public/og-image.png` (1200×630, resized from design asset)
+- `layout.tsx` metadata: OG + Twitter cards fully wired with title, description, image, url, siteName
+- `.gitignore` updated: `scripts/`, `issues/`, `stitch_gta6/` excluded from git
 
 ### Pages / Routes
 
@@ -243,7 +255,7 @@ Light profanity filter applied server-side on `comment.body` and `post.caption` 
 
 ## Further Notes
 
-- **Legal**: grandtheftauto6.com / .net are registered with full awareness of trademark risk. The site is framed throughout as a non-commercial parody fan page. DMCA page is required from day one. Legal copy for About, Privacy, and DMCA should be drafted by a legal professional before public launch.
+- **Legal**: gta-social.com / .net are registered with full awareness of trademark risk. The site is framed throughout as a parody fan page. DMCA page is required from day one. Legal copy for About, Privacy, and DMCA should be drafted by a legal professional before public launch.
 - **Map tile source**: The GTA 6 map tile layer will reference community-sourced tile data (e.g. from the stateofleonida.net / gtadb.org community). Any tile data used must be compatible with open-source licensing. Attribution to source communities should be included in the About page.
 - **SEO is critical**: This is a new site with no domain authority. Crawl budget is limited. Every public page must be server-rendered with complete metadata from day one. Submit sitemap to Google Search Console immediately on launch with the first batch of real posts.
 - **60% mobile traffic expected**: The responsive bottom-nav layout is not optional — it must ship with MVP and be tested on real devices.

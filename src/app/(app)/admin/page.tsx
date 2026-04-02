@@ -4,7 +4,10 @@ import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { isAdmin } from "@/lib/admin";
 import { AdminQueue } from "./AdminQueue";
 
-export const metadata = { title: "Admin Panel" };
+export const metadata = {
+  title: "Admin Panel",
+  robots: { index: false, follow: false },
+};
 
 function getServiceClient() {
   return createAdminClient(

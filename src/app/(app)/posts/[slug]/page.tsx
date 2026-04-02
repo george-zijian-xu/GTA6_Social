@@ -31,22 +31,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${post.images[0].storagePath}`
     : undefined;
 
-  const canonicalUrl = `https://grandtheftauto6.com/posts/${slug}`;
+  const canonicalUrl = `https://gta-social.com/posts/${slug}`;
+  const authorName = post.displayName ?? post.username;
+  const location = post.locationName ?? null;
+
+  // Title: "[caption] in [location] | GTA Social" or "[caption] | GTA Social", max 60 chars before template
+  const titleBase = location
+    ? `${post.caption.slice(0, 40)} in ${location}`.slice(0, 57)
+    : post.caption.slice(0, 57);
+
+  // Description: dynamic template with author + location
+  const descLocation = location ?? "Leonida";
+  const descAuthor = authorName.slice(0, 30);
+  const description = `Check out this GTA 6 roleplay moment by ${descAuthor} at ${descLocation}. Join GTA Social to discuss ${descLocation} and share your own Vice City adventures.`.slice(0, 160);
 
   return {
-    title: post.caption.slice(0, 60) || "Post",
-    description: post.caption.slice(0, 155) || `Post by ${post.username} on Leonida Social`,
+    title: titleBase || "Post",
+    description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: post.caption.slice(0, 60) || "Post on Leonida Social",
-      description: post.caption.slice(0, 155),
+      title: titleBase || "Post on GTA Social",
+      description,
       url: canonicalUrl,
       images: imageUrl ? [{ url: imageUrl, alt: post.caption.slice(0, 80) }] : undefined,
       type: "article",
     },
     twitter: {
       card: "summary_large_image",
-      title: post.caption.slice(0, 60) || "Post on Leonida Social",
+      title: titleBase || "Post on GTA Social",
       images: imageUrl ? [imageUrl] : undefined,
     },
   };
@@ -80,7 +92,7 @@ export default async function PostDetailPage({ params }: Props) {
       : Promise.resolve(null),
   ]);
 
-  const canonicalUrl = `https://grandtheftauto6.com/posts/${slug}`;
+  const canonicalUrl = `https://gta-social.com/posts/${slug}`;
   const imageUrl = post.images[0]
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${post.images[0].storagePath}`
     : undefined;
@@ -94,7 +106,7 @@ export default async function PostDetailPage({ params }: Props) {
     author: {
       "@type": "Person",
       name: post.displayName ?? post.username,
-      url: `https://grandtheftauto6.com/users/${post.username}`,
+      url: `https://gta-social.com/users/${post.username}`,
     },
     datePublished: post.createdAt,
     image: imageUrl,
@@ -172,8 +184,10 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* Caption */}
         <div className="px-6 py-4">
-          {post.title && (
+          {post.title ? (
             <h1 className="text-xl font-bold text-foreground mb-2">{post.title}</h1>
+          ) : (
+            <h1 className="sr-only">{post.caption.slice(0, 100)}</h1>
           )}
           {post.caption && (
             <p className="text-base leading-relaxed text-foreground whitespace-pre-wrap">{post.caption}</p>
@@ -182,6 +196,7 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* Mini map module */}
         <div className="px-6 pb-4">
+          <h2 className="sr-only">Explore the Interactive Map for This Area</h2>
           <MiniMapModule
             locationName={post.locationName}
             locationSlug={post.locationSlug}
@@ -195,6 +210,7 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* Comments section */}
         <div className="flex-1 px-6 pb-4 min-h-0 flex flex-col">
+          <h2 className="sr-only">Discussion & Comments</h2>
           <CommentList
             initialComments={comments}
             postId={post.id}
@@ -224,6 +240,20 @@ export default async function PostDetailPage({ params }: Props) {
               </>
             }
           />
+        </div>
+
+        {/* Internal linking — sr-only for SEO */}
+        <div className="sr-only">
+          <h2>More from {post.displayName ?? post.username}</h2>
+          <Link href={`/users/${post.username}`}>View all posts by {post.displayName ?? post.username}</Link>
+          {post.locationSlug && (
+            <>
+              <h2>Explore More Posts in {post.locationName}</h2>
+              <Link href={`/locations/${post.locationSlug}`}>View all posts from {post.locationName}</Link>
+            </>
+          )}
+          <h2>Explore the Interactive GTA 6 Map</h2>
+          <Link href="/map">Open the GTA 6 interactive map</Link>
         </div>
       </div>
     </div>

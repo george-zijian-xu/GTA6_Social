@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { search } from "@/lib/search";
 import { SearchResults } from "./SearchResults";
@@ -5,6 +6,12 @@ import { SearchResults } from "./SearchResults";
 interface Props {
   searchParams: Promise<{ q?: string }>;
 }
+
+export const metadata: Metadata = {
+  title: "Search",
+  description: "Search posts and users on GTA Social.",
+  robots: { index: false, follow: false },
+};
 
 export default async function SearchPage({ searchParams }: Props) {
   const params = await searchParams;

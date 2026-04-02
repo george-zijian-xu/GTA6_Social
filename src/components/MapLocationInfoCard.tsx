@@ -39,10 +39,10 @@ export function MapLocationInfoCard({ location, currentLayer, onLayerToggle }: M
   const activity = hotScore !== null ? getActivityLabel(hotScore) : null;
 
   return (
-    <div className="pointer-events-auto bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-xl p-8 rounded-[1.5rem] shadow-2xl border border-white/40 dark:border-white/5 w-[360px] flex-shrink-0">
-      <div className="flex justify-between items-start mb-6">
+    <div className="pointer-events-auto bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-xl p-4 md:p-8 rounded-xl md:rounded-[1.5rem] shadow-2xl border border-white/40 dark:border-white/5 w-full md:w-[360px] flex-shrink-0">
+      <div className="flex justify-between items-start mb-4 md:mb-6">
         <div className="flex-1 pr-2">
-          <h2 className="text-3xl font-extrabold tracking-tighter text-gray-900 dark:text-white leading-tight">
+          <h2 className="text-xl md:text-3xl font-extrabold tracking-tighter text-gray-900 dark:text-white leading-tight">
             {displayName}
           </h2>
           {showAddress && (
@@ -75,7 +75,7 @@ export function MapLocationInfoCard({ location, currentLayer, onLayerToggle }: M
         )}
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <div>
           <div className="flex justify-between items-center mb-2">
             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
@@ -93,7 +93,7 @@ export function MapLocationInfoCard({ location, currentLayer, onLayerToggle }: M
           </div>
         </div>
 
-        <p className="text-xs leading-relaxed text-gray-500 dark:text-gray-400 font-medium min-h-[3rem]">
+        <p className="text-xs leading-relaxed text-gray-500 dark:text-gray-400 font-medium min-h-[2rem] md:min-h-[3rem] hidden md:block">
           {/* Description placeholder - will be populated from DB later */}
         </p>
 
@@ -105,7 +105,7 @@ export function MapLocationInfoCard({ location, currentLayer, onLayerToggle }: M
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
           }}
-          className="w-full py-4 bg-primary text-white rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-primary/20 hover:bg-red-600 transition-all active:scale-[0.98]"
+          className="w-full py-3 md:py-4 bg-primary text-white rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-primary/20 hover:bg-red-600 transition-all active:scale-[0.98]"
         >
           Explore More
         </button>

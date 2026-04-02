@@ -25,4 +25,9 @@ pnpm-debug.log*
 next-env.d.ts
 
 # local location data (downloaded from gtadb.org GitHub, not committed)
-locations/
+/locations/
+
+# local-only folders (design refs, scripts, issue notes)
+scripts/
+issues/
+stitch_gta6/
