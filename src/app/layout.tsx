@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@LeonidaSocial",
+    site: "@GtaSocial",
     title: "GTA Social — Unofficial GTA6 Fan Page",
     description:
       "A parody social network inspired by GTA 6. Roleplay as NPCs, share posts, and explore Leonida.",

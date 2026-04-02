@@ -58,6 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
+      site: "@GtaSocial",
       title: titleBase || "Post on GTA Social",
       images: imageUrl ? [imageUrl] : undefined,
     },
