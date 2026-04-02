@@ -9,24 +9,40 @@ const inter = Inter({
   display: "swap",
 });
 
-const BASE_URL = "https://grandtheftauto6.com";
+const BASE_URL = "https://gta-social.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Leonida Social — Unofficial GTA6 Fan Page",
-    template: "%s | Leonida Social",
+    default: "GTA Social — Unofficial GTA6 Fan Page",
+    template: "%s | GTA Social",
   },
   description:
     "A parody social network inspired by GTA 6. Roleplay as NPCs, share posts, and explore Leonida.",
   openGraph: {
     type: "website",
-    siteName: "Leonida Social",
+    siteName: "GTA Social",
     locale: "en_US",
+    title: "GTA Social — Unofficial GTA6 Fan Page",
+    description:
+      "A parody social network inspired by GTA 6. Roleplay as NPCs, share posts, and explore Leonida.",
+    url: BASE_URL,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "GTA Social — Unofficial GTA6 Fan Community",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     site: "@LeonidaSocial",
+    title: "GTA Social — Unofficial GTA6 Fan Page",
+    description:
+      "A parody social network inspired by GTA 6. Roleplay as NPCs, share posts, and explore Leonida.",
+    images: ["/og-image.png"],
   },
   alternates: {
     canonical: BASE_URL,
@@ -34,6 +50,14 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/icon.png", sizes: "96x96", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-icon.png",
   },
 };
 
