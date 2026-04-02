@@ -57,7 +57,7 @@ export function Sidebar({ onPostClick }: SidebarProps) {
       {/* Wordmark */}
       <div className="px-6 pt-8 pb-6">
         <Link href="/" className="text-xl font-bold tracking-tight text-primary">
-          Leonida Social
+          GTA Social
         </Link>
       </div>
 
