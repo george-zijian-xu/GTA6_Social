@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
 
-const BASE_URL = "https://grandtheftauto6.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gta-social.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
@@ -37,8 +37,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: BASE_URL, changeFrequency: "hourly", priority: 1.0 },
     { url: `${BASE_URL}/map`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE_URL}/search`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE_URL}/about`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE_URL}/privacy`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${BASE_URL}/dmca`, changeFrequency: "yearly", priority: 0.1 },
     ...postUrls,
     ...userUrls,
     ...locationUrls,
