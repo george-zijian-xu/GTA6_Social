@@ -52,6 +52,9 @@ export const metadata: Metadata = {
     follow: true,
   },
   manifest: "/manifest.webmanifest",
+  other: {
+    "ahrefs-site-verification": "55cb8b3f62d97ae2ddee522baeb9720aa0cd3b26b28e0168cd8ebb21d7a67283",
+  },
   icons: {
     icon: [
       { url: "/icon.png", sizes: "96x96", type: "image/png" },
