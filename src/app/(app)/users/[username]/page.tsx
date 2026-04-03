@@ -35,6 +35,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       firstName: displayName,
       username: profile.username,
       description,
+      images: profile.avatarUrl
+        ? [{ url: profile.avatarUrl, width: 400, height: 400, alt: displayName }]
+        : [{ url: "https://gta-social.com/og-image.png", width: 1200, height: 630, alt: "GTA Social" }],
     },
     twitter: { card: "summary" },
   };
@@ -123,9 +126,9 @@ export default async function UserProfilePage({ params }: Props) {
 
           {profile.website && (
             <a
-              href={profile.website}
+              href={profile.website.startsWith("http") ? profile.website : `https://${profile.website}`}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
               className="text-sm text-primary hover:text-primary-hover transition-colors"
             >
               {profile.website.replace(/^https?:\/\//, "")}

@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     description: "Join GTA Social, the ultimate GTA 6 roleplay community! Post as a Leonida local, share NPC moments, and pin your stories to our interactive Vice City map.",
     url: "https://gta-social.com",
     type: "website",
+    images: [{ url: "https://gta-social.com/og-image.png", width: 1200, height: 630, alt: "GTA Social — Unofficial GTA6 Fan Community" }],
   },
 };
 

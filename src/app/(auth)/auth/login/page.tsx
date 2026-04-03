@@ -54,7 +54,7 @@ function LoginForm() {
     setError(null);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}` },
+      options: { redirectTo: `https://gta-social.com/auth/callback?next=${redirectTo}` },
     });
     if (error) setError(error.message);
   }
@@ -64,7 +64,7 @@ function LoginForm() {
       <div className="bg-surface-card dark:bg-[#1a1a1a] rounded-lg p-8 shadow-lg">
         {/* Wordmark */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-primary">Leonida Social</h1>
+          <h1 className="text-2xl font-bold text-primary">GTA Social</h1>
           <p className="text-xs text-foreground-muted mt-1">
             Unofficial GTA6 Fan Page
           </p>
