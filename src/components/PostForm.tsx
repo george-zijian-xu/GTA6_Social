@@ -45,7 +45,7 @@ export function PostForm({ onClose, compact = false }: PostFormProps) {
   const router = useRouter();
 
   const MAX_IMAGES = 10;
-  const MAX_CAPTION = 2000;
+  const MAX_CAPTION = 10000;
   const DRAFT_KEY = "leonida_post_draft";
 
   // Restore draft from sessionStorage on mount
